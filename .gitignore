@@ -37,3 +37,9 @@ vault/vault.key
 Thumbs.db
 .vscode/
 .idea/
+
+# Environment secrets
+.env.local
+.env.*
+!.env.example
+!.env.*.example
