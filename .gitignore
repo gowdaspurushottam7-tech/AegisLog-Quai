@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Production build artifacts
+dist/
+frontend/dist/
+
+# Hardhat build cache & artifacts
+contracts/cache/
+contracts/artifacts/
+
+# Python cache & virtual environments
+__pycache__/
+*/__pycache__/
+*.pyc
+.venv/
+*/.venv/
+env/
+.env
+
+# Dynamic logs and mock data (keep folder via .gitkeep)
+data/*.log
+!data/.gitkeep
+
+# Isolated Vault Encrypted Batches and runtime files (keep folder via .gitkeep)
+vault/*.enc
+vault/.agent_killed
+vault/.heartbeat
+vault/.agent_state.json
+vault/*.meta.json
+vault/vault.key
+!vault/.gitkeep
+
+# Editor & OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

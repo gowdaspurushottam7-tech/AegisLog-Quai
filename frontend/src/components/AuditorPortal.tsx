@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload, CheckCircle2, XCircle, ShieldCheck, FileText, ArrowRight, Hash, Cpu, Layers } from 'lucide-react';
+import { Upload, CheckCircle2, XCircle, FileText, Cpu, ChevronDown, ChevronUp } from 'lucide-react';
 import { computeBrowserMerkleRoot } from '../lib/merkle';
 import { fetchOnChainBatch } from '../lib/chain';
 
@@ -7,6 +7,7 @@ export const AuditorPortal: React.FC = () => {
   const [dragActive, setDragActive] = useState<boolean>(false);
   const [evidenceData, setEvidenceData] = useState<any | null>(null);
   const [verifying, setVerifying] = useState<boolean>(false);
+  const [certExpanded, setCertExpanded] = useState<boolean>(false);
   const [auditResult, setAuditResult] = useState<{
     status: 'IDLE' | 'VERIFIED' | 'TAMPERED' | 'ERROR';
     computedRoot?: string;
@@ -63,7 +64,7 @@ export const AuditorPortal: React.FC = () => {
     try {
       const res = await fetch('/api/export-evidence/1');
       if (!res.ok) {
-        throw new Error('No batches anchored yet. Run mock_server and wait 10s.');
+        throw new Error('No batches anchored yet. Wait for batch #1 to anchor.');
       }
       const data = await res.json();
       setEvidenceData(data);
@@ -88,10 +89,9 @@ export const AuditorPortal: React.FC = () => {
       const batchId: number = evidence.batch_id;
 
       // 1. Browser Native In-Memory Web Crypto SHA-256 Merkle Computation
-      // Uses exact same algorithm: UTF-8 encode -> SHA-256 leaf -> Pair concatenation -> Odd-node duplicate
       const { merkleRoot: computedRoot } = await computeBrowserMerkleRoot(rawLogs);
 
-      // 2. Fetch directly from On-Chain Smart Contract via JSON-RPC
+      // 2. Query On-Chain Smart Contract via JSON-RPC
       let onChainRoot = expectedRoot;
       let chainVerified = false;
 
@@ -102,7 +102,7 @@ export const AuditorPortal: React.FC = () => {
           chainVerified = true;
         }
       } catch (chainErr) {
-        console.warn('Direct on-chain contract fetch failed, using evidence on-chain package root:', chainErr);
+        console.warn('Direct on-chain contract fetch failed, using evidence package root:', chainErr);
       }
 
       // 3. Strict Comparison
@@ -138,220 +138,243 @@ export const AuditorPortal: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header Info Banner */}
-      <div className="bg-[#0B132B] border border-blue-900/50 rounded-xl p-5 shadow-lg">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-blue-600 rounded-lg text-white">
-            <ShieldCheck className="w-6 h-6" />
-          </div>
-          <div>
-            <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
-              Independent Zero-Trust Forensic Auditor Portal
-              <span className="text-[10px] bg-blue-950 text-blue-300 font-mono px-2 py-0.5 rounded border border-blue-700/50">
-                CLIENT-SIDE NATIVE WEB CRYPTO
-              </span>
-            </h2>
-            <p className="text-xs text-slate-300 mt-1">
-              Verify court admissibility without trusting the backend. The browser re-hashes every log line using native{' '}
-              <code className="text-blue-400 font-mono">crypto.subtle</code> and checks the Merkle Root directly against{' '}
-              <code className="text-emerald-400 font-mono">LogAnchor.sol</code> on-chain.
-            </p>
-          </div>
-        </div>
+    <div className="max-w-4xl mx-auto space-y-6">
+      {/* Description Header */}
+      <div className="text-center space-y-1.5 pb-2">
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-white tracking-tight">
+          Independent Zero-Trust Forensic Auditor
+        </h2>
+        <p className="text-xs text-slate-600 dark:text-zinc-400 max-w-xl mx-auto">
+          Verify court admissibility in your browser. Raw logs are re-hashed via native Web Crypto{' '}
+          <code className="text-[#3730A3] dark:text-[#6366F1] font-mono">crypto.subtle</code> and evaluated against the immutable on-chain root in{' '}
+          <code className="text-[#3730A3] dark:text-[#6366F1] font-mono">LogAnchor.sol</code>.
+        </p>
       </div>
 
-      {/* Drag & Drop Upload Zone */}
+      {/* Centered Clean Drag-and-Drop Box - Soft pearl-slate (#F4F7FA) with #D2DCE8 border */}
       <div
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
-        className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all ${
+        className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all bg-[#F4F7FA] dark:bg-[#121216] shadow-sm ${
           dragActive
-            ? 'border-blue-400 bg-blue-950/40 shadow-[0_0_25px_rgba(59,130,246,0.3)]'
-            : 'border-slate-800 bg-[#090F1E] hover:border-slate-700'
+            ? 'border-indigo-500 bg-[#E0E7FF]/50 dark:bg-indigo-950/20'
+            : 'border-[#D2DCE8] hover:border-indigo-400 dark:border-[#24242C] dark:hover:border-indigo-400'
         }`}
       >
         <input
           type="file"
-          id="file-upload"
+          id="evidence-upload"
           accept=".json"
           onChange={handleFileChange}
           className="hidden"
         />
 
         <div className="flex flex-col items-center justify-center space-y-3">
-          <div className="p-4 bg-blue-950/70 border border-blue-800/60 rounded-full text-blue-400">
-            <Upload className="w-7 h-7" />
+          <div className="w-12 h-12 rounded-xl bg-[#E2E9F2] dark:bg-[#0E0E12] border border-[#D2DCE8] dark:border-[#24242C] flex items-center justify-center text-[#3730A3] dark:text-[#6366F1]">
+            <Upload className="w-5 h-5 text-[#3730A3] dark:text-[#6366F1]" />
           </div>
+
           <div>
             <label
-              htmlFor="file-upload"
-              className="text-sm font-bold text-blue-400 hover:text-blue-300 cursor-pointer underline"
+              htmlFor="evidence-upload"
+              className="text-sm font-medium text-[#3730A3] dark:text-[#6366F1] hover:text-indigo-800 dark:hover:text-indigo-300 cursor-pointer underline underline-offset-2"
             >
-              Choose Court-Ready Evidence JSON
+              Upload Evidence JSON
             </label>
-            <span className="text-sm text-slate-400"> or drag and drop file here</span>
-            <p className="text-xs text-slate-500 mt-1">
-              File format: <code className="text-slate-400">AegisLog_BSA_Section63_Batch_*.json</code>
+            <span className="text-sm text-slate-600 dark:text-zinc-400"> or drag and drop file here</span>
+            <p className="text-[11px] text-slate-500 dark:text-zinc-500 mt-1 font-mono">
+              Accepts AegisLog_BSA_Section63_Batch_*.json
             </p>
           </div>
 
           <div className="pt-2">
             <button
               onClick={loadLatestBatchSample}
-              className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded transition"
+              className="text-xs text-[#1E293B] dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white bg-[#E2E9F2] hover:bg-[#D2DCE8] dark:bg-[#181820] dark:hover:bg-[#20202a] border border-[#D2DCE8] dark:border-[#24242C] px-3 py-1.5 rounded-md transition"
             >
-              Or Click to Load Sample Batch from System
+              Or load sample batch from live system
             </button>
           </div>
         </div>
       </div>
 
-      {/* Verifying Spinner */}
+      {/* Verifying Indicator */}
       {verifying && (
-        <div className="p-6 bg-[#0B132B] border border-blue-900/60 rounded-xl flex items-center justify-center gap-3 text-blue-300">
-          <Cpu className="w-5 h-5 animate-spin" />
-          <span className="text-sm font-mono font-medium">
-            Computing SHA-256 Merkle Tree in Web Crypto &amp; querying smart contract...
+        <div className="p-4 bg-[#F4F7FA] dark:bg-[#121216] border border-[#D2DCE8] dark:border-indigo-500/30 shadow-sm rounded-xl flex items-center justify-center gap-3 text-[#3730A3] dark:text-indigo-300 text-xs">
+          <Cpu className="w-4 h-4 animate-spin text-[#3730A3] dark:text-[#6366F1]" />
+          <span className="font-mono">
+            Recomputing SHA-256 Merkle root in browser and querying smart contract...
           </span>
         </div>
       )}
 
-      {/* Verdict Banners */}
+      {/* Clear Verdict Card: Verified Admissible - Soft Mint (#E6F6EE) with #065F46 text and #A7F3D0 border */}
       {auditResult.status === 'VERIFIED' && (
-        <div className="bg-emerald-950/40 border-2 border-emerald-500 rounded-xl p-6 shadow-[0_0_30px_rgba(16,185,129,0.3)] animate-fadeIn">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-emerald-600 rounded-xl text-white shadow-lg">
-              <CheckCircle2 className="w-8 h-8" />
+        <div className="bg-[#E6F6EE] dark:bg-[#121216] border border-[#A7F3D0] dark:border-emerald-500/50 shadow-sm rounded-xl p-6 space-y-4 transition-colors duration-200">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-lg bg-[#A7F3D0]/60 dark:bg-emerald-500/10 border border-[#A7F3D0] dark:border-emerald-500/20 flex items-center justify-center text-[#065F46] dark:text-emerald-400 shrink-0">
+              <CheckCircle2 className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-black text-emerald-200 uppercase tracking-wider">
-                  VERIFIED ADMISSIBLE (BSA SEC 63)
+                <h3 className="text-base font-semibold text-[#065F46] dark:text-white">
+                  Verified Admissible (BSA Sec 63)
                 </h3>
-                <span className="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">
-                  COURT ADMISSIBLE
+                <span className="px-2.5 py-0.5 rounded text-[10px] font-semibold bg-[#A7F3D0]/70 text-[#065F46] border border-[#A7F3D0] dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30">
+                  Tamper Proof
                 </span>
               </div>
-              <p className="text-xs text-emerald-300 mt-1">
-                Zero-Trust Verification Succeeded! In-browser computed SHA-256 Merkle Root matches the on-chain smart contract anchor byte-for-byte.
+              <p className="text-xs text-[#065F46]/90 dark:text-zinc-400 mt-1">
+                Zero-Trust Verification Succeeded. The browser-computed Merkle root matches the on-chain blockchain anchor byte-for-byte ({auditResult.leafCount} log leaves verified).
               </p>
             </div>
           </div>
 
-          {/* Cryptographic Comparison */}
-          <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
-            <div className="p-3 bg-black/60 rounded-lg border border-emerald-800/60">
-              <span className="text-emerald-400 block font-sans font-semibold mb-1">
-                1. Browser Computed Merkle Root (Web Crypto):
+          {/* Root Comparison: Nested cool slate boxes */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div className="p-3 rounded-lg bg-[#F4F7FA] dark:bg-[#0E0E12] border border-[#A7F3D0] dark:border-[#24242C] space-y-1">
+              <span className="text-[11px] text-[#065F46] dark:text-zinc-400 font-semibold block">
+                Browser Computed Merkle Root (Web Crypto):
               </span>
-              <span className="text-slate-200 break-all">{auditResult.computedRoot}</span>
+              <span className="text-[#065F46] dark:text-emerald-400 font-mono text-[11px] break-all select-all font-bold">
+                {auditResult.computedRoot}
+              </span>
             </div>
 
-            <div className="p-3 bg-black/60 rounded-lg border border-emerald-800/60">
-              <span className="text-emerald-400 block font-sans font-semibold mb-1">
-                2. On-Chain Smart Contract Root (LogAnchor.sol):
+            <div className="p-3 rounded-lg bg-[#F4F7FA] dark:bg-[#0E0E12] border border-[#A7F3D0] dark:border-[#24242C] space-y-1">
+              <span className="text-[11px] text-[#065F46] dark:text-zinc-400 font-semibold block">
+                On-Chain Smart Contract Root (LogAnchor.sol):
               </span>
-              <span className="text-slate-200 break-all">{auditResult.onChainRoot}</span>
+              <span className="text-[#065F46] dark:text-emerald-400 font-mono text-[11px] break-all select-all font-bold">
+                {auditResult.onChainRoot}
+              </span>
             </div>
           </div>
         </div>
       )}
 
+      {/* Clear Verdict Card: Tampered / Invalid - Soft Blush Rose (#FCE8EC) with #9F1239 text and #FECDD3 border */}
       {auditResult.status === 'TAMPERED' && (
-        <div className="bg-red-950/40 border-2 border-red-600 rounded-xl p-6 shadow-[0_0_30px_rgba(239,68,68,0.4)] animate-pulse">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-red-600 rounded-xl text-white shadow-lg">
-              <XCircle className="w-8 h-8" />
+        <div className="bg-[#FCE8EC] dark:bg-[#121216] border border-[#FECDD3] dark:border-rose-500/60 shadow-sm rounded-xl p-6 space-y-4 transition-colors duration-200">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-lg bg-[#FECDD3] dark:bg-rose-500/10 border border-[#FECDD3] dark:border-rose-500/20 flex items-center justify-center text-[#9F1239] dark:text-rose-400 shrink-0">
+              <XCircle className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-black text-red-200 uppercase tracking-wider">
-                  TAMPERED / INVALID RECORD
+                <h3 className="text-base font-semibold text-[#9F1239] dark:text-white">
+                  Tampered / Invalid Record
                 </h3>
-                <span className="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">
-                  INADMISSIBLE
+                <span className="px-2.5 py-0.5 rounded text-[10px] font-semibold bg-[#FECDD3] text-[#9F1239] border border-[#FECDD3] dark:bg-rose-500/20 dark:text-rose-400 dark:border-rose-500/30">
+                  Inadmissible
                 </span>
               </div>
-              <p className="text-xs text-red-300 mt-1">
-                Cryptographic discrepancy detected! The recomputed hash of raw logs does NOT match the on-chain blockchain anchor.
+              <p className="text-xs text-[#9F1239]/90 dark:text-rose-300 mt-1">
+                Cryptographic mismatch! The browser-computed Merkle root does not match the immutable smart contract anchor. Evidence is tainted or modified.
               </p>
             </div>
           </div>
 
-          <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
-            <div className="p-3 bg-black/60 rounded-lg border border-red-800">
-              <span className="text-red-400 block font-sans font-semibold mb-1">
+          {/* Root Comparison */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div className="p-3 rounded-lg bg-[#F4F7FA] dark:bg-[#0E0E12] border border-[#FECDD3] dark:border-rose-950/50 space-y-1">
+              <span className="text-[11px] text-[#9F1239] dark:text-rose-400 font-semibold block">
                 Browser Computed Merkle Root:
               </span>
-              <span className="text-red-300 break-all">{auditResult.computedRoot}</span>
+              <span className="text-[#9F1239] dark:text-rose-300 font-mono text-[11px] break-all select-all font-bold">
+                {auditResult.computedRoot}
+              </span>
             </div>
 
-            <div className="p-3 bg-black/60 rounded-lg border border-red-800">
-              <span className="text-red-400 block font-sans font-semibold mb-1">
+            <div className="p-3 rounded-lg bg-[#F4F7FA] dark:bg-[#0E0E12] border border-[#D2DCE8] dark:border-[#24242C] space-y-1">
+              <span className="text-[11px] text-slate-700 dark:text-zinc-400 font-semibold block">
                 Expected On-Chain Anchor:
               </span>
-              <span className="text-slate-300 break-all">{auditResult.onChainRoot}</span>
+              <span className="text-[#1E293B] dark:text-zinc-300 font-mono text-[11px] break-all select-all font-bold">
+                {auditResult.onChainRoot}
+              </span>
             </div>
           </div>
         </div>
       )}
 
-      {/* BSA Section 63 Statutory Schedule Certificate Preview */}
+      {/* Collapsible Accordion: BSA Section 63 Part A & Part B Certificate */}
       {evidenceData?.bsa_section_63_certificate && (
-        <div className="bg-[#090F1E] border border-slate-800 rounded-xl p-6 space-y-5">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div className="bg-[#F4F7FA] dark:bg-[#121216] border border-[#D2DCE8] dark:border-[#24242C] shadow-sm rounded-xl overflow-hidden transition-colors duration-200">
+          {/* Accordion Trigger Header */}
+          <button
+            onClick={() => setCertExpanded(!certExpanded)}
+            className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-[#E2E9F2]/70 dark:hover:bg-[#181820] transition"
+          >
+            <div className="flex items-center gap-3">
+              <FileText className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+              <div>
+                <span className="text-xs font-semibold text-slate-900 dark:text-white tracking-wide block">
+                  BSA Section 63 Statutory Schedule Certificate
+                </span>
+                <span className="text-[11px] text-slate-600 dark:text-zinc-400">
+                  Section 63(4) Part A (System Custodian) &amp; Part B (Forensic Expert)
+                </span>
+              </div>
+            </div>
+
             <div className="flex items-center gap-2">
-              <FileText className="w-5 h-5 text-amber-400" />
-              <h3 className="text-sm font-bold text-slate-100 uppercase tracking-wider">
-                Bharatiya Sakshya Adhiniyam, 2023 — Statutory Schedule Certificate
-              </h3>
-            </div>
-            <span className="text-xs text-amber-300 font-mono bg-amber-950/60 border border-amber-800/60 px-2.5 py-1 rounded">
-              Section 63(4) Part A &amp; Part B
-            </span>
-          </div>
-
-          {/* Part A: System Custodian */}
-          <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-lg space-y-2 text-xs">
-            <div className="flex items-center justify-between font-bold text-blue-300">
-              <span>{evidenceData.bsa_section_63_certificate.part_a_system_custodian_declaration.title}</span>
-              <span className="font-mono text-[10px] text-slate-400">
-                {evidenceData.bsa_section_63_certificate.part_a_system_custodian_declaration.statutory_subclause}
+              <span className="text-[10px] font-mono text-[#92400E] bg-[#FEF3C7] border border-[#FDE68A] dark:text-amber-300 dark:bg-amber-500/10 dark:border-amber-500/20 px-2 py-0.5 rounded font-medium">
+                Section 63(4)
               </span>
+              {certExpanded ? (
+                <ChevronUp className="w-4 h-4 text-slate-500 dark:text-zinc-400" />
+              ) : (
+                <ChevronDown className="w-4 h-4 text-slate-500 dark:text-zinc-400" />
+              )}
             </div>
-            <p className="text-slate-400">
-              <strong>Custodian:</strong> {evidenceData.bsa_section_63_certificate.part_a_system_custodian_declaration.custodian_name} ({evidenceData.bsa_section_63_certificate.part_a_system_custodian_declaration.organization})
-            </p>
-            <div className="space-y-1 text-slate-300 pl-2 border-l border-slate-700 text-[11.5px]">
-              {evidenceData.bsa_section_63_certificate.part_a_system_custodian_declaration.declaration_statements.map((stmt: string, i: number) => (
-                <div key={i}>{stmt}</div>
-              ))}
-            </div>
-          </div>
+          </button>
 
-          {/* Part B: Forensic Expert */}
-          <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-lg space-y-2 text-xs">
-            <div className="flex items-center justify-between font-bold text-emerald-300">
-              <span>{evidenceData.bsa_section_63_certificate.part_b_forensic_expert_declaration.title}</span>
-              <span className="font-mono text-[10px] text-slate-400">
-                {evidenceData.bsa_section_63_certificate.part_b_forensic_expert_declaration.statutory_subclause}
-              </span>
+          {/* Accordion Content */}
+          {certExpanded && (
+            <div className="px-5 pb-5 pt-2 border-t border-[#D2DCE8] dark:border-[#24242C] space-y-4 text-xs">
+              {/* Part A: System Custodian - Nested box in cool slate (#E2E9F2) */}
+              <div className="p-4 bg-[#E2E9F2] dark:bg-[#0E0E12] border border-[#D2DCE8] dark:border-[#24242C] rounded-lg space-y-2">
+                <div className="flex items-center justify-between font-semibold text-[#3730A3] dark:text-[#6366F1]">
+                  <span>{evidenceData.bsa_section_63_certificate.part_a_system_custodian_declaration.title}</span>
+                  <span className="font-mono text-[10px] text-slate-600 dark:text-zinc-400">
+                    {evidenceData.bsa_section_63_certificate.part_a_system_custodian_declaration.statutory_subclause}
+                  </span>
+                </div>
+                <p className="text-[#1E293B] dark:text-zinc-300">
+                  <strong>Custodian:</strong> {evidenceData.bsa_section_63_certificate.part_a_system_custodian_declaration.custodian_name} ({evidenceData.bsa_section_63_certificate.part_a_system_custodian_declaration.organization})
+                </p>
+                <div className="space-y-1 text-[#1E293B] dark:text-zinc-300 pl-2.5 border-l border-[#CBD5E1] dark:border-zinc-700 text-[11.5px]">
+                  {evidenceData.bsa_section_63_certificate.part_a_system_custodian_declaration.declaration_statements.map((stmt: string, i: number) => (
+                    <div key={i}>{stmt}</div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Part B: Forensic Expert - Nested box in cool slate (#E2E9F2) */}
+              <div className="p-4 bg-[#E2E9F2] dark:bg-[#0E0E12] border border-[#D2DCE8] dark:border-[#24242C] rounded-lg space-y-2">
+                <div className="flex items-center justify-between font-semibold text-[#065F46] dark:text-emerald-400">
+                  <span>{evidenceData.bsa_section_63_certificate.part_b_forensic_expert_declaration.title}</span>
+                  <span className="font-mono text-[10px] text-slate-600 dark:text-zinc-400">
+                    {evidenceData.bsa_section_63_certificate.part_b_forensic_expert_declaration.statutory_subclause}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-[11px] text-[#1E293B] dark:text-zinc-300 bg-[#F4F7FA] dark:bg-[#121216] p-3 rounded border border-[#D2DCE8] dark:border-[#24242C]">
+                  <div><strong>Cipher:</strong> {evidenceData.bsa_section_63_certificate.part_b_forensic_expert_declaration.cryptographic_verification.vault_cipher}</div>
+                  <div><strong>Merkle Tree:</strong> {evidenceData.bsa_section_63_certificate.part_b_forensic_expert_declaration.cryptographic_verification.merkle_tree_algorithm}</div>
+                  <div className="sm:col-span-2 break-all"><strong>Smart Contract:</strong> {evidenceData.bsa_section_63_certificate.part_b_forensic_expert_declaration.cryptographic_verification.on_chain_smart_contract}</div>
+                  <div className="sm:col-span-2 break-all"><strong>On-Chain Tx:</strong> {evidenceData.bsa_section_63_certificate.part_b_forensic_expert_declaration.cryptographic_verification.transaction_hash}</div>
+                </div>
+                <div className="space-y-1 text-[#1E293B] dark:text-zinc-300 pl-2.5 border-l border-[#CBD5E1] dark:border-zinc-700 text-[11.5px]">
+                  {evidenceData.bsa_section_63_certificate.part_b_forensic_expert_declaration.expert_findings.map((f: string, i: number) => (
+                    <div key={i}>{f}</div>
+                  ))}
+                </div>
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-2 font-mono text-[11px] text-slate-300 bg-black/40 p-2.5 rounded border border-slate-800">
-              <div><strong>Cipher:</strong> {evidenceData.bsa_section_63_certificate.part_b_forensic_expert_declaration.cryptographic_verification.vault_cipher}</div>
-              <div><strong>Merkle Tree:</strong> {evidenceData.bsa_section_63_certificate.part_b_forensic_expert_declaration.cryptographic_verification.merkle_tree_algorithm}</div>
-              <div className="col-span-2 break-all"><strong>Smart Contract:</strong> {evidenceData.bsa_section_63_certificate.part_b_forensic_expert_declaration.cryptographic_verification.on_chain_smart_contract}</div>
-              <div className="col-span-2 break-all"><strong>On-Chain Tx:</strong> {evidenceData.bsa_section_63_certificate.part_b_forensic_expert_declaration.cryptographic_verification.transaction_hash}</div>
-            </div>
-            <div className="space-y-1 text-slate-300 pl-2 border-l border-slate-700 text-[11.5px]">
-              {evidenceData.bsa_section_63_certificate.part_b_forensic_expert_declaration.expert_findings.map((f: string, i: number) => (
-                <div key={i}>{f}</div>
-              ))}
-            </div>
-          </div>
+          )}
         </div>
       )}
     </div>

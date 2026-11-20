@@ -4,26 +4,41 @@
 
 @layer base {
   body {
-    background-color: #070B14;
-    color: #F1F5F9;
+    background-color: #EAEFF5;
+    color: #0F172A;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .dark body {
+    background-color: #0A0A0C;
+    color: #F4F4F5;
   }
 }
 
-/* Custom scrollbars for hacker/SOC look */
+/* Minimalist scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0B0F19;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1F2937;
+  background: #CBD5E1;
   border-radius: 3px;
 }
 
+.dark ::-webkit-scrollbar-thumb {
+  background: #24242C;
+}
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #374151;
+  background: #94A3B8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3F3F46;
 }

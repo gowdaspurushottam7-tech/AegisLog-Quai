@@ -11,13 +11,20 @@ from main import (
     simulate_attack_edit,
     simulate_kill_agent,
     restore_agent,
-    reset_demo
+    reset_demo,
+    LOG_FILE
 )
 
 def test_demo_fixes():
     print("=" * 65)
     print("🧪 TESTING DEMO FIXES (HEARTBEAT HALTED + RESET DEMO)")
     print("=" * 65)
+
+    # Ensure data/server.log has at least 1 mock line for attack testing
+    os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+    if not os.path.exists(LOG_FILE) or os.path.getsize(LOG_FILE) == 0:
+        with open(LOG_FILE, "w", encoding="utf-8") as f:
+            f.write("[2026-11-20T12:00:00Z] [AUTH] FAILED_ROOT_LOGIN src_ip=192.168.1.1\n")
 
     # 1. Test Bug 1: Kill agent and verify display_status is HEARTBEAT HALTED
     print("\n[Test 1] Simulating manual kill agent...")
@@ -46,11 +53,11 @@ def test_demo_fixes():
     print("   ✓ Verified: Alert clears cleanly upon clicking Resume Agent Heartbeat!")
 
     # 3. Test Bug 2: Reset Demo
-    print("\n[Test 3] Simulating log attack then testing Reset Demo button...")
+    print("\n[Test 3] Simulating alert condition then testing Reset Demo button...")
+    simulate_kill_agent()
     simulate_attack_edit()
     status_attacked = get_status()
     print(f"   Pre-reset is_compromised : {status_attacked['is_compromised']}")
-    print(f"   Pre-reset tamper alerts  : {len(status_attacked['tamper_alerts'])}")
     assert status_attacked["is_compromised"] == True
 
     # Call Reset Demo
@@ -68,12 +75,13 @@ def test_demo_fixes():
 
     assert status_clean["is_compromised"] == False
     assert len(status_clean["tamper_alerts"]) == 0
+    assert status_clean["dead_man_switch"]["AGENT_KILLED_ALERT"] == False
     assert status_clean["incident_countdown"]["countdown_active"] == False
     assert status_clean["incident_countdown"]["countdown_display"] == "06:00:00"
-    assert status_clean["dead_man_switch"]["AGENT_KILLED_ALERT"] == False
 
+    print("\n   ✓ Verified: Reset Demo cleanly restores 100% green state for judges!")
     print("\n" + "=" * 65)
-    print("🎉 BOTH DEMO BUGS FIXED & VERIFIED SUCCESSFULLY 100%!")
+    print("🎉 ALL DEMO FIX VERIFICATIONS PASSED!")
     print("=" * 65)
 
 if __name__ == "__main__":

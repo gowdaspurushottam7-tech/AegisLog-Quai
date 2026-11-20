@@ -1,15 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { CertInBar } from './components/CertInBar';
 import { SOCCommandCenter } from './components/SOCCommandCenter';
 import { AuditorPortal } from './components/AuditorPortal';
-import { Shield, ShieldAlert, Cpu, RefreshCw, Layers, CheckCircle2, RotateCcw } from 'lucide-react';
+import { Shield, RotateCcw, Sun, Moon } from 'lucide-react';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<'soc' | 'auditor'>('soc');
   const [statusData, setStatusData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [autoRefresh, setAutoRefresh] = useState<boolean>(true);
   const [resetting, setResetting] = useState<boolean>(false);
+
+  // Theme Toggle: Defaults to 'dark', persists in localStorage
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('aegislog-theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+    }
+    return 'dark';
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    localStorage.setItem('aegislog-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   const fetchStatus = async () => {
     try {
@@ -40,102 +61,109 @@ export function App() {
 
   useEffect(() => {
     fetchStatus();
-    if (!autoRefresh) return;
     const interval = setInterval(fetchStatus, 2000);
     return () => clearInterval(interval);
-  }, [autoRefresh]);
+  }, []);
 
-  const isCompromised = statusData?.is_compromised;
+  const isCompromised = Boolean(
+    statusData?.is_compromised ||
+    statusData?.dead_man_switch?.AGENT_KILLED_ALERT ||
+    (statusData?.tamper_alerts && statusData.tamper_alerts.length > 0)
+  );
 
   return (
-    <div className="min-h-screen bg-[#060913] text-slate-100 flex flex-col font-sans">
-      {/* Top Navbar */}
-      <header className="bg-[#0B1021] border-b border-slate-800/80 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          {/* Logo & System Title */}
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-xl transition ${isCompromised ? 'bg-red-600 animate-pulse' : 'bg-blue-600'}`}>
-              <Shield className="w-6 h-6 text-white" />
+    <div className="min-h-screen bg-[#EAEFF5] dark:bg-[#0A0A0C] text-[#0F172A] dark:text-[#F4F4F5] flex flex-col font-sans transition-colors duration-200">
+      {/* Top Header - Soft pearl-slate in light mode (#F4F7FA) */}
+      <header className="h-14 border-b border-[#D2DCE8] dark:border-[#24242C] bg-[#F4F7FA]/90 dark:bg-[#0A0A0C]/90 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-6 transition-colors duration-200">
+        <div className="max-w-7xl mx-auto h-full flex items-center justify-between gap-4">
+          {/* Brand Logo */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-[#E0E7FF] dark:bg-indigo-500/10 border border-[#C7D2FE] dark:border-indigo-500/30 flex items-center justify-center text-[#3730A3] dark:text-[#6366F1]">
+              <Shield className="w-4 h-4" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-black text-lg tracking-wider bg-gradient-to-r from-blue-400 via-indigo-300 to-white bg-clip-text text-transparent">
-                  AEGISLOG
-                </span>
-                <span className="text-[10px] bg-slate-800 text-slate-300 font-mono px-2 py-0.5 rounded border border-slate-700">
-                  v1.0 ZERO-TRUST
-                </span>
-                <span className="text-[10px] bg-amber-950/70 text-amber-300 font-bold px-2 py-0.5 rounded border border-amber-800/50">
-                  🇮🇳 BSA SEC 63
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-400 hidden sm:block">
-                Tamper-Evident Cryptographic Logging &amp; Indian Court Forensics
-              </p>
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-sm tracking-tight text-slate-900 dark:text-white">AegisLog</span>
+              <span className="text-[10px] text-slate-600 dark:text-zinc-400 font-mono border border-[#D2DCE8] dark:border-[#24242C] bg-[#E2E9F2] dark:bg-[#121216] rounded px-1.5 py-0.5">
+                BSA Sec 63
+              </span>
             </div>
           </div>
 
-          {/* Tab Navigation */}
-          <div className="flex items-center gap-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
+          {/* Centered 2-Tab Pill Switcher: Soft periwinkle tint (#E0E7FF) with deep indigo text (#3730A3) in light mode */}
+          <div className="flex items-center bg-[#E2E9F2] dark:bg-[#121216] border border-[#D2DCE8] dark:border-[#24242C] p-0.5 rounded-lg shadow-inner">
             <button
               onClick={() => setActiveTab('soc')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition ${
+              className={`px-3.5 py-1.5 rounded-md text-xs font-medium transition-all ${
                 activeTab === 'soc'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-[#E0E7FF] text-[#3730A3] font-semibold dark:bg-[#6366F1] dark:text-white shadow-sm dark:shadow-[0_0_12px_rgba(6,182,212,0.35)]'
+                  : 'text-slate-600 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-zinc-100'
               }`}
             >
-              <Cpu className="w-3.5 h-3.5" />
-              Tab 1: SOC Command Center
-              {isCompromised && (
-                <span className="w-2 h-2 rounded-full bg-red-400 animate-ping"></span>
-              )}
+              Live Monitor
             </button>
-
             <button
               onClick={() => setActiveTab('auditor')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition ${
+              className={`px-3.5 py-1.5 rounded-md text-xs font-medium transition-all ${
                 activeTab === 'auditor'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-[#E0E7FF] text-[#3730A3] font-semibold dark:bg-[#6366F1] dark:text-white shadow-sm dark:shadow-[0_0_12px_rgba(6,182,212,0.35)]'
+                  : 'text-slate-600 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-zinc-100'
               }`}
             >
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-              Tab 2: Independent Auditor Portal
+              Auditor Verify
             </button>
           </div>
 
-          {/* Controls: Reset Demo & Auto-refresh */}
-          <div className="flex items-center gap-2.5">
+          {/* Right Controls: Single Status Dot + Reset Demo + Theme Toggle */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Single Integrity Status Dot */}
+            <div className="flex items-center gap-2 text-xs font-medium">
+              {isCompromised ? (
+                <>
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                  </span>
+                  <span className="text-[#9F1239] dark:text-rose-400 font-semibold hidden sm:inline">Tamper Alert</span>
+                </>
+              ) : (
+                <>
+                  <span className="relative flex h-2 w-2">
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  <span className="text-[#065F46] dark:text-emerald-400 font-medium hidden sm:inline">Verified</span>
+                </>
+              )}
+            </div>
+
+            {/* Reset Demo Button */}
             <button
               onClick={handleResetDemo}
               disabled={resetting}
-              className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition active:scale-95 disabled:opacity-50"
-              title="Reset alerts, sync logs from vault, and restore 100% clean green state for judges"
+              className="flex items-center gap-1.5 text-xs text-[#1E293B] dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white bg-[#E2E9F2] hover:bg-[#D2DCE8] dark:bg-[#121216] dark:hover:bg-[#1c1c24] border border-[#D2DCE8] dark:border-[#24242C] px-2.5 py-1.5 rounded-md transition active:scale-95 disabled:opacity-50"
+              title="Reset alerts, restore logs from vault, and clear CERT-In timer to start 100% green"
             >
-              <RotateCcw className={`w-3.5 h-3.5 ${resetting ? 'animate-spin' : ''}`} />
-              {resetting ? 'Resetting...' : 'Reset Demo'}
+              <RotateCcw className={`w-3.5 h-3.5 text-slate-500 dark:text-zinc-400 ${resetting ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">{resetting ? 'Resetting...' : 'Reset Demo'}</span>
             </button>
 
+            {/* Theme Toggle (Sun/Moon) */}
             <button
-              onClick={() => setAutoRefresh(!autoRefresh)}
-              className={`hidden md:flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition ${
-                autoRefresh
-                  ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-300'
-                  : 'bg-slate-900 border-slate-800 text-slate-400'
-              }`}
+              onClick={toggleTheme}
+              className="p-1.5 rounded-md text-[#1E293B] hover:text-slate-900 dark:text-zinc-300 dark:hover:text-white bg-[#E2E9F2] hover:bg-[#D2DCE8] dark:bg-[#121216] dark:hover:bg-[#1c1c24] border border-[#D2DCE8] dark:border-[#24242C] transition-all"
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              aria-label="Toggle theme"
             >
-              <RefreshCw className={`w-3 h-3 ${autoRefresh ? 'animate-spin' : ''}`} />
-              {autoRefresh ? 'Live Polling (2s)' : 'Polling Paused'}
+              {theme === 'dark' ? (
+                <Sun className="w-3.5 h-3.5 text-amber-400" />
+              ) : (
+                <Moon className="w-3.5 h-3.5 text-[#3730A3]" />
+              )}
             </button>
           </div>
         </div>
-
-        {/* CERT-In Compliance Bar */}
-        <CertInBar statusData={statusData} />
       </header>
 
-      {/* Main Content Area */}
+      {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
         {activeTab === 'soc' ? (
           <SOCCommandCenter statusData={statusData} onRefresh={fetchStatus} />
@@ -144,11 +172,9 @@ export function App() {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-900 bg-[#04070F] py-4 text-center text-xs text-slate-500 font-mono">
-        <p>
-          AegisLog Cryptographic Security Architecture · Designed for CERT-In Compliance (2022 Mandate) &amp; Bharatiya Sakshya Adhiniyam, 2023 (BSA Section 63)
-        </p>
+      {/* Clean Minimalist Footer */}
+      <footer className="border-t border-[#D2DCE8] dark:border-[#24242C] py-3 text-center text-[11px] text-slate-500 dark:text-zinc-500 bg-[#F4F7FA] dark:bg-[#0A0A0C] transition-colors duration-200">
+        <p>AegisLog Zero-Trust Cryptographic Forensics · CERT-In Compliant · BSA Section 63 Schedule Certificate</p>
       </footer>
     </div>
   );
