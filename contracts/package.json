@@ -1,0 +1,16 @@
+{
+  "name": "aegislog-contracts",
+  "version": "1.0.0",
+  "description": "LogAnchor Solidity smart contracts for AegisLog",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "node": "hardhat node",
+    "deploy": "hardhat run scripts/deploy.js --network localhost",
+    "test": "hardhat test"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.22.0"
+  }
+}

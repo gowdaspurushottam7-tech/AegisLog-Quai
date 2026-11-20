@@ -1,0 +1,6 @@
+[2026-11-20T15:42:33.376+05:30] [UTC:2026-11-20T10:12:33Z] [AUTH] SSH_LOGIN SUCCESS user=deployer src_ip=10.0.4.179 port=62833 session_id=s-243544 key_type=rsa-4096
+[2026-11-20T15:42:33.405+05:30] [UTC:2026-11-20T10:12:33Z] [SEC] SUDO_EXEC user=developer cmd="/usr/bin/systemctl restart nginx" status=OK pid=26942 tty=/dev/pts/2
+[2026-11-20T15:42:33.428+05:30] [UTC:2026-11-20T10:12:33Z] [AUDIT] PRIV_ESC alert=UNAUTHORIZED_SETUID binary="/tmp/.exploit_runner" caller_uid=1005 result=BLOCKED_BY_APPARMOR
+[2026-11-20T15:42:33.461+05:30] [UTC:2026-11-20T10:12:33Z] [SEC] SUDO_EXEC user=developer cmd="/usr/bin/systemctl restart nginx" status=OK pid=5467 tty=/dev/pts/2
+[2026-11-20T15:42:33.477+05:30] [UTC:2026-11-20T10:12:33Z] [AUTH] SSH_LOGIN FAILED_ROOT_LOGIN user=root src_ip=198.51.100.205 port=38842 reason=INVALID_KEY auth_attempts=3
+[2026-11-20T15:42:33.487+05:30] [UTC:2026-11-20T10:12:33Z] [AUDIT] PRIV_ESC target_capability=CAP_NET_ADMIN caller="/usr/local/bin/proxy_mon" pid=5159 result=GRANTED
