@@ -11,12 +11,12 @@
   }
 
   .dark body {
-    background-color: #0A0A0C;
+    background-color: #09090B;
     color: #F4F4F5;
   }
 }
 
-/* Minimalist scrollbars */
+/* Enterprise scrollbars */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -28,11 +28,11 @@
 
 ::-webkit-scrollbar-thumb {
   background: #CBD5E1;
-  border-radius: 3px;
+  border-radius: 2px;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #24242C;
+  background: #222228;
 }
 
 ::-webkit-scrollbar-thumb:hover {

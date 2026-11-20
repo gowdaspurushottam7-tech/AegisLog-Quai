@@ -1,5 +1,18 @@
 import React, { useState } from 'react';
-import { ShieldCheck, AlertTriangle, RefreshCw, Download, FileText, CheckCircle2, Skull, Play, Clock, Layers, HardDrive, Activity } from 'lucide-react';
+import {
+  ShieldCheck,
+  AlertTriangle,
+  RefreshCw,
+  Download,
+  FileText,
+  CheckCircle2,
+  Skull,
+  Play,
+  Clock,
+  Layers,
+  Activity,
+  Database
+} from 'lucide-react';
 
 interface TamperPanelProps {
   statusData: any;
@@ -58,263 +71,318 @@ export const TamperPanel: React.FC<TamperPanelProps> = ({ statusData, onRefresh 
     tamperAlerts[0]?.batch_id ??
     (anchors.length > 0 ? anchors[anchors.length - 1].batch_id : 1);
 
-  // Normal State: Calm, spacious soft pearl-slate card with soft mint status and cool slate stat boxes
-  if (!isCompromised) {
-    return (
-      <div className="bg-[#F4F7FA] dark:bg-[#121216] border border-[#D2DCE8] dark:border-[#24242C] shadow-sm rounded-xl p-6 transition-colors duration-200">
-        {/* Calm Green Status Banner - Soft Mint (#E6F6EE) */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-6 border-b border-[#D2DCE8] dark:border-[#24242C] gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#E6F6EE] dark:bg-emerald-500/10 border border-[#A7F3D0] dark:border-emerald-500/20 flex items-center justify-center text-[#065F46] dark:text-emerald-400 shrink-0">
-              <ShieldCheck className="w-5 h-5" />
+  return (
+    <div className="space-y-4">
+      {/* KPI Strip: Clean 4-column horizontal metric bar with hairline dividers */}
+      <div className="bg-[#F4F7FA] dark:bg-[#111114] border border-[#D2DCE8] dark:border-[#222228] rounded-lg overflow-hidden shadow-sm transition-colors duration-150">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[#D2DCE8] dark:divide-[#222228]">
+          {/* KPI 1: System Integrity Status */}
+          <div className="p-4 flex flex-col justify-between">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
+              System Integrity Status
+            </span>
+            <div className="mt-2 flex items-center gap-2">
+              <span
+                className={`w-2 h-2 rounded-full shrink-0 ${
+                  isCompromised ? 'bg-rose-500 animate-pulse' : 'bg-emerald-500'
+                }`}
+              ></span>
+              <span
+                className={`text-sm font-semibold tracking-tight ${
+                  isCompromised
+                    ? 'text-rose-700 dark:text-rose-400'
+                    : 'text-emerald-700 dark:text-emerald-400'
+                }`}
+              >
+                {isCompromised ? 'Tamper Discrepancy' : 'All Batches Verified'}
+              </span>
             </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-base font-semibold text-slate-900 dark:text-white">
-                  All Logs Cryptographically Verified
-                </h2>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#E6F6EE] text-[#065F46] border border-[#A7F3D0] dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#065F46] dark:bg-emerald-400"></span>
-                  180-Day CERT-In Retention
+            <span className="text-[11px] text-slate-500 dark:text-zinc-500 mt-1">
+              {isCompromised ? 'Pinpoint forensic audit triggered' : 'Continuous SHA-256 hash chain'}
+            </span>
+          </div>
+
+          {/* KPI 2: Anchored Batches */}
+          <div className="p-4 flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400">
+              <span className="text-[11px] font-semibold uppercase tracking-wider">
+                Anchored Batches
+              </span>
+              <Layers size={14} strokeWidth={1.75} />
+            </div>
+            <div className="mt-2 text-xl font-bold font-mono tabular-nums text-slate-900 dark:text-white">
+              {totalBatches}
+            </div>
+            <span className="text-[11px] text-slate-500 dark:text-zinc-500 mt-1">
+              Anchored on Hardhat EVM (10s TTL)
+            </span>
+          </div>
+
+          {/* KPI 3: Watchtower Heartbeat */}
+          <div className="p-4 flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400">
+              <span className="text-[11px] font-semibold uppercase tracking-wider">
+                Watchtower Heartbeat
+              </span>
+              <Activity size={14} strokeWidth={1.75} />
+            </div>
+            <div className="mt-2 flex items-center gap-2">
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  isAgentKilled ? 'bg-rose-500' : 'bg-emerald-500'
+                }`}
+              ></span>
+              <span
+                className={`text-sm font-semibold font-mono ${
+                  isAgentKilled
+                    ? 'text-rose-700 dark:text-rose-400'
+                    : 'text-slate-900 dark:text-white'
+                }`}
+              >
+                {isAgentKilled ? 'WATCHTOWER OFFLINE' : 'HEARTBEAT OK'}
+              </span>
+            </div>
+            <span className="text-[11px] text-slate-500 dark:text-zinc-500 mt-1">
+              15s Dead Man's Switch threshold
+            </span>
+          </div>
+
+          {/* KPI 4: CERT-In 180-Day / 6-Hour Compliance */}
+          <div className="p-4 flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400">
+              <span className="text-[11px] font-semibold uppercase tracking-wider">
+                CERT-In Compliance
+              </span>
+              <Database size={14} strokeWidth={1.75} />
+            </div>
+            <div className="mt-2 flex items-center gap-2">
+              {isCompromised ? (
+                <span className="font-mono font-bold text-base tabular-nums text-rose-700 dark:text-rose-400">
+                  {countdownDisplay}
                 </span>
-              </div>
-              <p className="text-xs text-slate-600 dark:text-zinc-400 mt-1">
-                Continuous SHA-256 Merkle tree anchors match Hardhat smart contract ledger. Zero discrepancies detected.
-              </p>
+              ) : (
+                <span className="text-sm font-semibold text-slate-900 dark:text-white font-mono">
+                  180-Day Retained
+                </span>
+              )}
+            </div>
+            <span className="text-[11px] text-slate-500 dark:text-zinc-500 mt-1">
+              {isCompromised ? 'Mandatory reporting window active' : `${totalLogs} sealed vault logs retained`}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Normal State: Executive Assurance Banner when integrity is intact */}
+      {!isCompromised && (
+        <div className="bg-[#F4F7FA] dark:bg-[#111114] border border-[#D2DCE8] dark:border-[#222228] rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors duration-150">
+          <div className="flex items-center gap-2.5">
+            <CheckCircle2 size={16} strokeWidth={1.75} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <div>
+              <span className="text-xs font-medium text-slate-800 dark:text-zinc-200">
+                All security batches match on-chain Merkle roots in <code className="text-indigo-600 dark:text-indigo-400 font-mono text-[11px]">LogAnchor.sol</code>.
+              </span>
+              <span className="text-[11px] text-slate-500 dark:text-zinc-500 ml-2 hidden md:inline">
+                Zero tamper discrepancies detected across disk and vault backups.
+              </span>
             </div>
           </div>
 
           {anchors.length > 0 && (
             <button
               onClick={() => handleExportEvidence(targetBatchId)}
-              className="self-start sm:self-auto flex items-center gap-2 text-xs font-medium text-[#1E293B] dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white bg-[#E2E9F2] hover:bg-[#D2DCE8] dark:bg-[#181820] dark:hover:bg-[#20202a] border border-[#D2DCE8] dark:border-[#24242C] px-3 py-2 rounded-lg transition"
+              className="self-start sm:self-auto rounded-md border border-[#D2DCE8] dark:border-[#222228] bg-[#E2E9F2] hover:bg-[#D2DCE8] dark:bg-[#16161A] dark:hover:bg-[#1F1F24] text-slate-700 dark:text-zinc-300 text-xs font-medium px-3 py-1.5 inline-flex items-center gap-1.5 transition active:scale-95"
             >
-              <Download className="w-3.5 h-3.5 text-slate-500 dark:text-zinc-400" />
+              <Download size={13} strokeWidth={1.75} />
               Export BSA Sec 63 Proof
             </button>
           )}
         </div>
-
-        {/* 3 Clean Stat Numbers - Deeper cool slate (#E2E9F2) with dark slate text (#1E293B) */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="p-4 rounded-lg bg-[#E2E9F2] dark:bg-[#0E0E12] border border-[#D2DCE8] dark:border-[#24242C] transition-colors duration-200">
-            <div className="flex items-center justify-between text-slate-600 dark:text-zinc-400 text-xs font-medium mb-1.5">
-              <span>Batches Anchored</span>
-              <Layers className="w-4 h-4 text-slate-500 dark:text-zinc-500" />
-            </div>
-            <div className="text-2xl font-bold font-mono text-[#1E293B] dark:text-white tracking-tight">
-              {totalBatches}
-            </div>
-            <div className="text-[11px] text-slate-500 dark:text-zinc-500 mt-1">
-              On-chain at 10s intervals
-            </div>
-          </div>
-
-          <div className="p-4 rounded-lg bg-[#E2E9F2] dark:bg-[#0E0E12] border border-[#D2DCE8] dark:border-[#24242C] transition-colors duration-200">
-            <div className="flex items-center justify-between text-slate-600 dark:text-zinc-400 text-xs font-medium mb-1.5">
-              <span>Sealed Logs</span>
-              <HardDrive className="w-4 h-4 text-slate-500 dark:text-zinc-500" />
-            </div>
-            <div className="text-2xl font-bold font-mono text-[#1E293B] dark:text-white tracking-tight">
-              {totalLogs}
-            </div>
-            <div className="text-[11px] text-slate-500 dark:text-zinc-500 mt-1">
-              Backed up in AES-256-GCM vault
-            </div>
-          </div>
-
-          <div className="p-4 rounded-lg bg-[#E2E9F2] dark:bg-[#0E0E12] border border-[#D2DCE8] dark:border-[#24242C] transition-colors duration-200">
-            <div className="flex items-center justify-between text-slate-600 dark:text-zinc-400 text-xs font-medium mb-1.5">
-              <span>Watchtower Status</span>
-              <Activity className="w-4 h-4 text-[#065F46] dark:text-emerald-400" />
-            </div>
-            <div className="flex items-center gap-2 text-2xl font-bold font-mono text-[#065F46] dark:text-emerald-400 tracking-tight">
-              Healthy
-            </div>
-            <div className="text-[11px] text-slate-500 dark:text-zinc-500 mt-1">
-              15s Dead Man's Switch active
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Attack State: Soft blush rose (#FCE8EC) with #9F1239 text and #FECDD3 border in light mode
-  return (
-    <div className="bg-[#FCE8EC] dark:bg-[#121216] border border-[#FECDD3] dark:border-rose-500/50 shadow-sm rounded-xl p-6 transition-all duration-300 space-y-6">
-      {/* Alert Header with 6-Hour Countdown & Action Buttons */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-[#FECDD3] dark:border-rose-900/40">
-        <div className="flex items-start gap-3.5">
-          <div className="w-10 h-10 rounded-lg bg-[#FECDD3] dark:bg-rose-500/10 border border-[#FECDD3] dark:border-rose-500/30 flex items-center justify-center text-[#9F1239] dark:text-rose-400 shrink-0 mt-0.5">
-            <AlertTriangle className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h2 className="text-base font-semibold text-[#9F1239] dark:text-white">
-                Forensic Discrepancy Pinpointed
-              </h2>
-              <span className="px-2.5 py-0.5 rounded text-[11px] font-semibold bg-[#FECDD3] text-[#9F1239] border border-[#FECDD3] dark:bg-rose-500/20 dark:text-rose-300 dark:border-rose-500/30">
-                Tamper Detected
-              </span>
-            </div>
-            <p className="text-xs text-[#9F1239]/90 dark:text-rose-300/80 mt-1">
-              On-chain Merkle root does not match disk logs. Red team activity isolated by forensic engine.
-            </p>
-          </div>
-        </div>
-
-        {/* 6-Hour CERT-In Countdown & Actions */}
-        <div className="flex flex-wrap items-center gap-3">
-          {/* 6-Hour Countdown */}
-          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-[#F4F7FA] dark:bg-rose-950/40 border border-[#FECDD3] dark:border-rose-800/60">
-            <Clock className="w-4 h-4 text-[#9F1239] dark:text-rose-400" />
-            <div>
-              <span className="text-[10px] text-[#9F1239]/80 dark:text-rose-300/70 block uppercase font-medium leading-none">
-                CERT-In Mandatory Window
-              </span>
-              <span className="font-mono font-bold text-sm text-[#9F1239] dark:text-rose-400">
-                {countdownDisplay}
-              </span>
-            </div>
-          </div>
-
-          {/* Prominent Buttons */}
-          <button
-            onClick={handleRecoverAll}
-            disabled={recovering}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs px-3.5 py-2 rounded-lg transition active:scale-95 disabled:opacity-50 shadow-sm"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${recovering ? 'animate-spin' : ''}`} />
-            {recovering ? 'Restoring...' : 'Recover Logs'}
-          </button>
-
-          <button
-            onClick={() => handleExportEvidence(targetBatchId)}
-            className="flex items-center gap-2 bg-[#4F46E5] hover:bg-indigo-700 dark:bg-[#6366F1] dark:hover:bg-indigo-500 text-white font-medium text-xs px-3.5 py-2 rounded-lg transition active:scale-95 shadow-sm"
-          >
-            <FileText className="w-3.5 h-3.5" />
-            Export BSA Sec 63 Proof
-          </button>
-
-          {isAgentKilled && (
-            <button
-              onClick={handleUnkillAgent}
-              className="flex items-center gap-1.5 bg-[#E2E9F2] hover:bg-[#D2DCE8] dark:bg-[#181820] dark:hover:bg-[#20202a] text-[#1E293B] dark:text-zinc-200 font-medium text-xs px-3 py-2 rounded-lg border border-[#D2DCE8] dark:border-[#24242C] transition"
-            >
-              <Play className="w-3.5 h-3.5 text-[#065F46] dark:text-emerald-400" />
-              Resume Heartbeat
-            </button>
-          )}
-        </div>
-      </div>
-
-      {recoverMsg && (
-        <div className="bg-[#E6F6EE] dark:bg-emerald-950/40 border border-[#A7F3D0] dark:border-emerald-700/50 text-[#065F46] dark:text-emerald-300 text-xs px-3 py-2 rounded-lg flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-[#065F46] dark:text-emerald-400 shrink-0" />
-          <span>{recoverMsg}</span>
-        </div>
       )}
 
-      {/* Dead Man's Switch Banner if tripped */}
-      {isAgentKilled && (
-        <div className="p-3.5 rounded-lg bg-[#FECDD3]/50 dark:bg-rose-950/30 border border-[#FECDD3] dark:border-rose-800/50 flex items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2.5">
-            <Skull className="w-4 h-4 text-[#9F1239] dark:text-rose-400 shrink-0" />
-            <div>
-              <span className="font-semibold text-[#9F1239] dark:text-rose-200">Watchtower Dead Man's Switch Tripped: </span>
-              <span className="text-slate-800 dark:text-zinc-300">
-                Agent process halted. Detected at{' '}
-                <span className="font-mono text-amber-700 dark:text-amber-300 font-medium">{dms?.killed_timestamp}</span>
-              </span>
-            </div>
-          </div>
-          <span className="text-[11px] font-mono font-semibold text-[#9F1239] dark:text-rose-300 bg-[#FECDD3] dark:bg-rose-900/40 px-2 py-0.5 rounded border border-[#FECDD3] dark:border-rose-800/60 shrink-0">
-            {dms?.display_status || 'HEARTBEAT HALTED'}
-          </span>
-        </div>
-      )}
-
-      {/* Side-by-Side Pinpoint Diff */}
-      {tamperAlerts.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between text-xs text-slate-700 dark:text-zinc-400 font-medium">
-            <span>Pinpoint Discrepancy Analysis (Line-by-Line Forensic Audit)</span>
-            <span className="text-[11px] text-slate-600 dark:text-zinc-500 font-mono">
-              Batch #{tamperAlerts[0]?.batch_id} · {tamperAlerts[0]?.detected_at}
-            </span>
-          </div>
-
-          {tamperAlerts.map((alert: any) => (
-            <div
-              key={alert.batch_id}
-              className="rounded-lg border border-[#D2DCE8] dark:border-[#24242C] bg-[#E2E9F2] dark:bg-[#0E0E12] overflow-hidden"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-[#D2DCE8] dark:divide-[#24242C] text-xs">
-                {/* Left: Tampered in Server Log */}
-                <div className="p-4 bg-[#FCE8EC]/70 dark:bg-rose-950/15 space-y-2">
-                  <div className="flex items-center justify-between text-[#9F1239] dark:text-rose-400 font-medium pb-2 border-b border-[#FECDD3] dark:border-rose-900/30">
-                    <span className="flex items-center gap-1.5 font-semibold">
-                      <span className="w-2 h-2 rounded-full bg-[#9F1239]"></span>
-                      Tampered Disk Log (data/server.log)
-                    </span>
-                    <span className="text-[10px] font-mono text-[#9F1239] dark:text-rose-400/80">Tampered</span>
-                  </div>
-
-                  {alert.mismatches && alert.mismatches.length > 0 ? (
-                    alert.mismatches.map((m: any, idx: number) => (
-                      <div
-                        key={idx}
-                        className="p-2.5 rounded bg-[#F4F7FA] dark:bg-[#0E0E12] border border-[#FECDD3] dark:border-rose-900/40 font-mono text-[11px]"
-                      >
-                        <div className="text-[10px] text-[#9F1239] dark:text-rose-400/80 mb-1 font-semibold">
-                          Line {m.global_line_index} · {m.type}
-                        </div>
-                        <div className="text-[#9F1239] dark:text-rose-200 break-all select-all font-mono font-medium">
-                          {m.current_text}
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-[#9F1239] dark:text-rose-400/70 italic py-2">
-                      File completely truncated or emptied (0 bytes).
-                    </div>
-                  )}
+      {/* Attack State: Clinical, Authoritative Alert Card with GitHub PR-style Diff */}
+      {isCompromised && (
+        <div className="bg-[#F4F7FA] dark:bg-[#111114] border border-rose-300 dark:border-rose-900/60 rounded-lg p-5 shadow-sm space-y-4 transition-all duration-150">
+          {/* Clinical Alert Header */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#D2DCE8] dark:border-[#222228]">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-md bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0 mt-0.5">
+                <AlertTriangle size={16} strokeWidth={1.75} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                    Forensic Discrepancy Pinpointed
+                  </h3>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase tracking-wider bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50">
+                    TAMPER DETECTED
+                  </span>
                 </div>
-
-                {/* Right: Cryptographically Proven Original in Vault */}
-                <div className="p-4 bg-[#E6F6EE]/70 dark:bg-emerald-950/15 space-y-2">
-                  <div className="flex items-center justify-between text-[#065F46] dark:text-emerald-400 font-medium pb-2 border-b border-[#A7F3D0] dark:border-emerald-900/30">
-                    <span className="flex items-center gap-1.5 font-semibold">
-                      <span className="w-2 h-2 rounded-full bg-[#065F46]"></span>
-                      Recovered Original (AES-256-GCM Vault)
-                    </span>
-                    <span className="text-[10px] font-mono text-[#065F46] dark:text-emerald-400/80">Blockchain Proven</span>
-                  </div>
-
-                  {alert.mismatches && alert.mismatches.length > 0 ? (
-                    alert.mismatches.map((m: any, idx: number) => (
-                      <div
-                        key={idx}
-                        className="p-2.5 rounded bg-[#F4F7FA] dark:bg-[#0E0E12] border border-[#A7F3D0] dark:border-emerald-900/40 font-mono text-[11px]"
-                      >
-                        <div className="text-[10px] text-[#065F46] dark:text-emerald-400/80 mb-1 font-semibold">
-                          Original Line {m.global_line_index} · Verified Root
-                        </div>
-                        <div className="text-[#065F46] dark:text-emerald-200 break-all select-all font-mono font-medium">
-                          {m.original_text}
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-[#065F46] dark:text-emerald-400/70 italic py-2">
-                      Original logs preserved in encrypted vault. Ready for recovery.
-                    </div>
-                  )}
-                </div>
+                <p className="text-xs text-slate-600 dark:text-zinc-400 mt-0.5">
+                  On-chain Merkle root does not match disk logs. Red team activity isolated by forensic engine.
+                </p>
               </div>
             </div>
-          ))}
+
+            {/* Actions: CERT-In Countdown & Executive Action Buttons */}
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* 6-Hour Countdown */}
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#E2E9F2] dark:bg-[#16161A] border border-[#D2DCE8] dark:border-[#222228]">
+                <Clock size={14} strokeWidth={1.75} className="text-rose-600 dark:text-rose-400" />
+                <div>
+                  <span className="text-[10px] text-slate-500 dark:text-zinc-400 block font-medium uppercase tracking-wider leading-none">
+                    CERT-In Reporting
+                  </span>
+                  <span className="font-mono font-bold text-xs tabular-nums text-rose-700 dark:text-rose-400">
+                    {countdownDisplay}
+                  </span>
+                </div>
+              </div>
+
+              {/* 1-Click Recover Logs */}
+              <button
+                onClick={handleRecoverAll}
+                disabled={recovering}
+                className="rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs px-3.5 py-1.5 inline-flex items-center gap-1.5 transition active:scale-95 disabled:opacity-50"
+              >
+                <RefreshCw size={13} strokeWidth={1.75} className={recovering ? 'animate-spin' : ''} />
+                {recovering ? 'Restoring...' : 'Recover Logs'}
+              </button>
+
+              {/* Export BSA Sec 63 Proof */}
+              <button
+                onClick={() => handleExportEvidence(targetBatchId)}
+                className="rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs px-3.5 py-1.5 inline-flex items-center gap-1.5 transition active:scale-95"
+              >
+                <FileText size={13} strokeWidth={1.75} />
+                Export BSA Sec 63 Proof
+              </button>
+
+              {/* Resume Heartbeat if Agent Killed */}
+              {isAgentKilled && (
+                <button
+                  onClick={handleUnkillAgent}
+                  className="rounded-md border border-[#D2DCE8] dark:border-[#222228] bg-[#E2E9F2] hover:bg-[#D2DCE8] dark:bg-[#16161A] dark:hover:bg-[#1F1F24] text-slate-800 dark:text-zinc-200 font-medium text-xs px-3 py-1.5 inline-flex items-center gap-1.5 transition active:scale-95"
+                >
+                  <Play size={13} strokeWidth={1.75} className="text-emerald-600 dark:text-emerald-400" />
+                  Resume Heartbeat
+                </button>
+              )}
+            </div>
+          </div>
+
+          {recoverMsg && (
+            <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-800 dark:text-emerald-300 text-xs px-3 py-2 rounded-md flex items-center gap-2">
+              <CheckCircle2 size={15} strokeWidth={1.75} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span>{recoverMsg}</span>
+            </div>
+          )}
+
+          {/* Watchtower Dead Man's Switch tripped alert */}
+          {isAgentKilled && (
+            <div className="p-3 rounded-md bg-rose-50/70 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/50 flex items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2.5">
+                <Skull size={15} strokeWidth={1.75} className="text-rose-600 dark:text-rose-400 shrink-0" />
+                <div>
+                  <span className="font-semibold text-rose-900 dark:text-rose-300">
+                    Dead Man's Switch Tripped:{' '}
+                  </span>
+                  <span className="text-slate-700 dark:text-zinc-300">
+                    Agent heartbeat suppressed. Detected at{' '}
+                    <span className="font-mono text-amber-700 dark:text-amber-300 font-medium">
+                      {dms?.killed_timestamp}
+                    </span>
+                  </span>
+                </div>
+              </div>
+              <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-rose-700 dark:text-rose-300 bg-rose-100 dark:bg-rose-900/40 px-2 py-0.5 rounded border border-rose-200 dark:border-rose-800/60 shrink-0">
+                {dms?.display_status || 'HEARTBEAT HALTED'}
+              </span>
+            </div>
+          )}
+
+          {/* Side-by-Side Pinpoint Diff: Styled like a GitHub Pull Request diff */}
+          {tamperAlerts.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-xs text-slate-600 dark:text-zinc-400 font-medium">
+                <span className="text-[11px] font-semibold uppercase tracking-wider">
+                  Pinpoint Discrepancy Audit (Line-by-Line Forensic Diff)
+                </span>
+                <span className="text-[11px] text-slate-500 dark:text-zinc-500 font-mono">
+                  Batch #{tamperAlerts[0]?.batch_id} · {tamperAlerts[0]?.detected_at}
+                </span>
+              </div>
+
+              {tamperAlerts.map((alert: any) => (
+                <div
+                  key={alert.batch_id}
+                  className="rounded-lg border border-[#D2DCE8] dark:border-[#222228] bg-[#E2E9F2] dark:bg-[#0E0E12] overflow-hidden"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-[#D2DCE8] dark:divide-[#222228] text-xs">
+                    {/* Left: Tampered Disk Log (PR Diff Red: -) */}
+                    <div className="flex flex-col">
+                      <div className="bg-rose-100/60 dark:bg-rose-950/30 px-3.5 py-2 border-b border-rose-200 dark:border-rose-900/40 flex items-center justify-between text-[11px] font-semibold font-mono text-rose-700 dark:text-rose-400 uppercase tracking-wider">
+                        <span>- TAMPERED DISK LOG (data/server.log)</span>
+                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-rose-200/60 dark:bg-rose-900/50">MODIFIED</span>
+                      </div>
+
+                      <div className="p-2 space-y-1.5 flex-1">
+                        {alert.mismatches && alert.mismatches.length > 0 ? (
+                          alert.mismatches.map((m: any, idx: number) => (
+                            <div
+                              key={idx}
+                              className="flex items-start gap-2 p-2 rounded bg-rose-50 dark:bg-rose-950/20 border border-rose-200/80 dark:border-rose-900/40 font-mono text-xs text-rose-900 dark:text-rose-200"
+                            >
+                              <span className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold select-none w-16 shrink-0 tabular-nums">
+                                L{m.global_line_index} -
+                              </span>
+                              <div className="flex-1 break-all select-all font-mono">
+                                {m.current_text}
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="p-3 text-rose-700 dark:text-rose-400/80 font-mono text-xs italic">
+                            File completely truncated or zeroed (0 bytes).
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Right: Cryptographically Proven Vault Original (PR Diff Green: +) */}
+                    <div className="flex flex-col">
+                      <div className="bg-emerald-100/60 dark:bg-emerald-950/30 px-3.5 py-2 border-b border-emerald-200 dark:border-emerald-900/40 flex items-center justify-between text-[11px] font-semibold font-mono text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
+                        <span>+ CRYPTOGRAPHICALLY PROVEN (AES-256-GCM VAULT)</span>
+                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-200/60 dark:bg-emerald-900/50">AUTHENTIC</span>
+                      </div>
+
+                      <div className="p-2 space-y-1.5 flex-1">
+                        {alert.mismatches && alert.mismatches.length > 0 ? (
+                          alert.mismatches.map((m: any, idx: number) => (
+                            <div
+                              key={idx}
+                              className="flex items-start gap-2 p-2 rounded bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-900/40 font-mono text-xs text-emerald-900 dark:text-emerald-200"
+                            >
+                              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold select-none w-16 shrink-0 tabular-nums">
+                                L{m.global_line_index} +
+                              </span>
+                              <div className="flex-1 break-all select-all font-mono">
+                                {m.original_text}
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="p-3 text-emerald-700 dark:text-emerald-400/80 font-mono text-xs italic">
+                            Original logs preserved in encrypted vault. Ready for 1-click recovery.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

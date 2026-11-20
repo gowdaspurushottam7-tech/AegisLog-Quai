@@ -72,91 +72,92 @@ export function App() {
   );
 
   return (
-    <div className="min-h-screen bg-[#EAEFF5] dark:bg-[#0A0A0C] text-[#0F172A] dark:text-[#F4F4F5] flex flex-col font-sans transition-colors duration-200">
-      {/* Top Header - Soft pearl-slate in light mode (#F4F7FA) */}
-      <header className="h-14 border-b border-[#D2DCE8] dark:border-[#24242C] bg-[#F4F7FA]/90 dark:bg-[#0A0A0C]/90 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-6 transition-colors duration-200">
+    <div className="min-h-screen bg-[#EAEFF5] dark:bg-[#09090B] text-[#0F172A] dark:text-[#F4F4F5] flex flex-col font-sans transition-colors duration-150">
+      {/* Top Navigation Bar: Compact 56px height with clean 1px border */}
+      <header className="h-14 border-b border-[#D2DCE8] dark:border-[#222228] bg-[#F4F7FA]/95 dark:bg-[#111114]/95 backdrop-blur-sm sticky top-0 z-50 px-4 sm:px-6 transition-colors duration-150">
         <div className="max-w-7xl mx-auto h-full flex items-center justify-between gap-4">
-          {/* Brand Logo */}
+          {/* Clean Left-Aligned Brand Mark */}
           <div className="flex items-center gap-2.5 shrink-0">
-            <div className="w-8 h-8 rounded-lg bg-[#E0E7FF] dark:bg-indigo-500/10 border border-[#C7D2FE] dark:border-indigo-500/30 flex items-center justify-center text-[#3730A3] dark:text-[#6366F1]">
-              <Shield className="w-4 h-4" />
+            <div className="w-7 h-7 rounded-md bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+              <Shield size={15} strokeWidth={1.75} />
             </div>
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-sm tracking-tight text-slate-900 dark:text-white">AegisLog</span>
-              <span className="text-[10px] text-slate-600 dark:text-zinc-400 font-mono border border-[#D2DCE8] dark:border-[#24242C] bg-[#E2E9F2] dark:bg-[#121216] rounded px-1.5 py-0.5">
-                BSA Sec 63
+              <span className="font-semibold text-sm tracking-tight text-slate-900 dark:text-white">
+                AegisLog
+              </span>
+              <span className="text-[10px] text-slate-600 dark:text-zinc-400 font-mono uppercase tracking-wider border border-[#D2DCE8] dark:border-[#222228] bg-[#E2E9F2]/70 dark:bg-[#16161A] rounded px-1.5 py-0.5">
+                SOC / BSA §63
               </span>
             </div>
           </div>
 
-          {/* Centered 2-Tab Pill Switcher: Soft periwinkle tint (#E0E7FF) with deep indigo text (#3730A3) in light mode */}
-          <div className="flex items-center bg-[#E2E9F2] dark:bg-[#121216] border border-[#D2DCE8] dark:border-[#24242C] p-0.5 rounded-lg shadow-inner">
+          {/* Centered Minimal Underline Tabs */}
+          <nav className="flex items-center h-full space-x-1">
             <button
               onClick={() => setActiveTab('soc')}
-              className={`px-3.5 py-1.5 rounded-md text-xs font-medium transition-all ${
+              className={`h-14 px-3.5 border-b-2 text-xs font-medium inline-flex items-center gap-2 transition-colors ${
                 activeTab === 'soc'
-                  ? 'bg-[#E0E7FF] text-[#3730A3] font-semibold dark:bg-[#6366F1] dark:text-white shadow-sm dark:shadow-[0_0_12px_rgba(6,182,212,0.35)]'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-zinc-100'
+                  ? 'border-indigo-600 dark:border-indigo-400 text-slate-900 dark:text-white'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200'
               }`}
             >
-              Live Monitor
+              Live SOC Monitor
             </button>
             <button
               onClick={() => setActiveTab('auditor')}
-              className={`px-3.5 py-1.5 rounded-md text-xs font-medium transition-all ${
+              className={`h-14 px-3.5 border-b-2 text-xs font-medium inline-flex items-center gap-2 transition-colors ${
                 activeTab === 'auditor'
-                  ? 'bg-[#E0E7FF] text-[#3730A3] font-semibold dark:bg-[#6366F1] dark:text-white shadow-sm dark:shadow-[0_0_12px_rgba(6,182,212,0.35)]'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-zinc-100'
+                  ? 'border-indigo-600 dark:border-indigo-400 text-slate-900 dark:text-white'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200'
               }`}
             >
-              Auditor Verify
+              Independent Auditor Portal
             </button>
-          </div>
+          </nav>
 
-          {/* Right Controls: Single Status Dot + Reset Demo + Theme Toggle */}
+          {/* Right-Aligned Utility Controls */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Single Integrity Status Dot */}
-            <div className="flex items-center gap-2 text-xs font-medium">
+            {/* Semantic Restraint Status Indicator: Subtle 6px dot + clean badge */}
+            <div className="flex items-center gap-1.5 text-xs font-medium">
               {isCompromised ? (
-                <>
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                  <span className="text-[11px] font-mono font-semibold uppercase tracking-wider hidden sm:inline">
+                    TAMPER DETECTED
                   </span>
-                  <span className="text-[#9F1239] dark:text-rose-400 font-semibold hidden sm:inline">Tamper Alert</span>
-                </>
+                </div>
               ) : (
-                <>
-                  <span className="relative flex h-2 w-2">
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  <span className="text-[11px] font-mono font-semibold uppercase tracking-wider hidden sm:inline">
+                    VERIFIED
                   </span>
-                  <span className="text-[#065F46] dark:text-emerald-400 font-medium hidden sm:inline">Verified</span>
-                </>
+                </div>
               )}
             </div>
 
-            {/* Reset Demo Button */}
+            {/* Understated Reset Demo Button */}
             <button
               onClick={handleResetDemo}
               disabled={resetting}
-              className="flex items-center gap-1.5 text-xs text-[#1E293B] dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white bg-[#E2E9F2] hover:bg-[#D2DCE8] dark:bg-[#121216] dark:hover:bg-[#1c1c24] border border-[#D2DCE8] dark:border-[#24242C] px-2.5 py-1.5 rounded-md transition active:scale-95 disabled:opacity-50"
-              title="Reset alerts, restore logs from vault, and clear CERT-In timer to start 100% green"
+              className="flex items-center gap-1.5 text-xs text-slate-700 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white bg-[#F4F7FA] hover:bg-[#E2E9F2] dark:bg-[#111114] dark:hover:bg-[#18181D] border border-[#D2DCE8] dark:border-[#222228] rounded-md px-2.5 py-1.5 transition active:scale-95 disabled:opacity-50"
+              title="Reset alerts, restore logs from vault, and clear CERT-In timer to start green"
             >
-              <RotateCcw className={`w-3.5 h-3.5 text-slate-500 dark:text-zinc-400 ${resetting ? 'animate-spin' : ''}`} />
+              <RotateCcw size={14} strokeWidth={1.75} className={`text-slate-500 dark:text-zinc-400 ${resetting ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">{resetting ? 'Resetting...' : 'Reset Demo'}</span>
             </button>
 
-            {/* Theme Toggle (Sun/Moon) */}
+            {/* Light / Dark Mode Toggle Button */}
             <button
               onClick={toggleTheme}
-              className="p-1.5 rounded-md text-[#1E293B] hover:text-slate-900 dark:text-zinc-300 dark:hover:text-white bg-[#E2E9F2] hover:bg-[#D2DCE8] dark:bg-[#121216] dark:hover:bg-[#1c1c24] border border-[#D2DCE8] dark:border-[#24242C] transition-all"
+              className="p-1.5 rounded-md text-slate-700 hover:text-slate-900 dark:text-zinc-300 dark:hover:text-white bg-[#F4F7FA] hover:bg-[#E2E9F2] dark:bg-[#111114] dark:hover:bg-[#18181D] border border-[#D2DCE8] dark:border-[#222228] transition"
               title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
               aria-label="Toggle theme"
             >
               {theme === 'dark' ? (
-                <Sun className="w-3.5 h-3.5 text-amber-400" />
+                <Sun size={15} strokeWidth={1.75} className="text-amber-400" />
               ) : (
-                <Moon className="w-3.5 h-3.5 text-[#3730A3]" />
+                <Moon size={15} strokeWidth={1.75} className="text-indigo-600" />
               )}
             </button>
           </div>
@@ -172,9 +173,9 @@ export function App() {
         )}
       </main>
 
-      {/* Clean Minimalist Footer */}
-      <footer className="border-t border-[#D2DCE8] dark:border-[#24242C] py-3 text-center text-[11px] text-slate-500 dark:text-zinc-500 bg-[#F4F7FA] dark:bg-[#0A0A0C] transition-colors duration-200">
-        <p>AegisLog Zero-Trust Cryptographic Forensics · CERT-In Compliant · BSA Section 63 Schedule Certificate</p>
+      {/* Clean Minimalist Executive Footer */}
+      <footer className="border-t border-[#D2DCE8] dark:border-[#222228] py-3 text-center text-[11px] text-slate-500 dark:text-zinc-500 bg-[#F4F7FA] dark:bg-[#111114] transition-colors duration-150">
+        <p>AegisLog Cryptographic Security Architecture · CERT-In Direction 70B &amp; BSA Section 63 Schedule Certificate</p>
       </footer>
     </div>
   );

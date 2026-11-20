@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload, CheckCircle2, XCircle, FileText, Cpu, ChevronDown, ChevronUp } from 'lucide-react';
+import { Upload, CheckCircle2, XCircle, FileText, Cpu, ChevronDown, ChevronUp, ShieldCheck, ShieldAlert, FileCode } from 'lucide-react';
 import { computeBrowserMerkleRoot } from '../lib/merkle';
 import { fetchOnChainBatch } from '../lib/chain';
 
@@ -12,6 +12,7 @@ export const AuditorPortal: React.FC = () => {
     status: 'IDLE' | 'VERIFIED' | 'TAMPERED' | 'ERROR';
     computedRoot?: string;
     onChainRoot?: string;
+    expectedRoot?: string;
     leafCount?: number;
     chainVerified?: boolean;
     errorMessage?: string;
@@ -115,6 +116,7 @@ export const AuditorPortal: React.FC = () => {
           status: 'VERIFIED',
           computedRoot,
           onChainRoot,
+          expectedRoot,
           leafCount: rawLogs.length,
           chainVerified,
         });
@@ -123,6 +125,7 @@ export const AuditorPortal: React.FC = () => {
           status: 'TAMPERED',
           computedRoot,
           onChainRoot,
+          expectedRoot,
           leafCount: rawLogs.length,
           chainVerified,
         });
@@ -138,29 +141,33 @@ export const AuditorPortal: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-5">
       {/* Description Header */}
-      <div className="text-center space-y-1.5 pb-2">
-        <h2 className="text-lg font-semibold text-slate-900 dark:text-white tracking-tight">
-          Independent Zero-Trust Forensic Auditor
+      <div className="text-center space-y-1 pb-1">
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded border border-[#D2DCE8] dark:border-[#222228] bg-[#F4F7FA] dark:bg-[#111114] text-[10px] font-semibold uppercase tracking-wider text-slate-700 dark:text-zinc-300 mb-1">
+          <FileCode size={12} strokeWidth={1.75} className="text-indigo-600 dark:text-indigo-400" />
+          Statutory Evidentiary Auditor • BSA §63
+        </div>
+        <h2 className="text-base font-semibold text-slate-900 dark:text-zinc-100 tracking-tight">
+          Zero-Trust Browser Merkle Verification
         </h2>
-        <p className="text-xs text-slate-600 dark:text-zinc-400 max-w-xl mx-auto">
-          Verify court admissibility in your browser. Raw logs are re-hashed via native Web Crypto{' '}
-          <code className="text-[#3730A3] dark:text-[#6366F1] font-mono">crypto.subtle</code> and evaluated against the immutable on-chain root in{' '}
-          <code className="text-[#3730A3] dark:text-[#6366F1] font-mono">LogAnchor.sol</code>.
+        <p className="text-xs text-slate-600 dark:text-zinc-400 max-w-xl mx-auto leading-relaxed">
+          Verify court admissibility in your browser. Raw logs are re-hashed via Web Crypto{' '}
+          <code className="text-indigo-600 dark:text-indigo-400 font-mono">crypto.subtle</code> and evaluated against the immutable on-chain root in{' '}
+          <code className="text-indigo-600 dark:text-indigo-400 font-mono">LogAnchor.sol</code>.
         </p>
       </div>
 
-      {/* Centered Clean Drag-and-Drop Box - Soft pearl-slate (#F4F7FA) with #D2DCE8 border */}
+      {/* Centered Clean Drag-and-Drop Card */}
       <div
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
-        className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all bg-[#F4F7FA] dark:bg-[#121216] shadow-sm ${
+        className={`relative border border-dashed rounded-lg p-7 text-center transition-all bg-[#F4F7FA] dark:bg-[#111114] ${
           dragActive
-            ? 'border-indigo-500 bg-[#E0E7FF]/50 dark:bg-indigo-950/20'
-            : 'border-[#D2DCE8] hover:border-indigo-400 dark:border-[#24242C] dark:hover:border-indigo-400'
+            ? 'border-indigo-500 bg-indigo-500/5 dark:bg-indigo-950/20'
+            : 'border-[#D2DCE8] hover:border-indigo-400 dark:border-[#222228] dark:hover:border-indigo-500'
         }`}
       >
         <input
@@ -171,30 +178,30 @@ export const AuditorPortal: React.FC = () => {
           className="hidden"
         />
 
-        <div className="flex flex-col items-center justify-center space-y-3">
-          <div className="w-12 h-12 rounded-xl bg-[#E2E9F2] dark:bg-[#0E0E12] border border-[#D2DCE8] dark:border-[#24242C] flex items-center justify-center text-[#3730A3] dark:text-[#6366F1]">
-            <Upload className="w-5 h-5 text-[#3730A3] dark:text-[#6366F1]" />
+        <div className="flex flex-col items-center justify-center space-y-2.5">
+          <div className="w-10 h-10 rounded-md bg-[#E2E9F2] dark:bg-[#18181D] border border-[#D2DCE8] dark:border-[#2A2A34] flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+            <Upload size={18} strokeWidth={1.75} />
           </div>
 
           <div>
             <label
               htmlFor="evidence-upload"
-              className="text-sm font-medium text-[#3730A3] dark:text-[#6366F1] hover:text-indigo-800 dark:hover:text-indigo-300 cursor-pointer underline underline-offset-2"
+              className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 cursor-pointer underline underline-offset-2"
             >
               Upload Evidence JSON
             </label>
-            <span className="text-sm text-slate-600 dark:text-zinc-400"> or drag and drop file here</span>
-            <p className="text-[11px] text-slate-500 dark:text-zinc-500 mt-1 font-mono">
+            <span className="text-xs text-slate-600 dark:text-zinc-400"> or drag and drop file here</span>
+            <p className="text-[11px] text-slate-500 dark:text-zinc-500 mt-0.5 font-mono">
               Accepts AegisLog_BSA_Section63_Batch_*.json
             </p>
           </div>
 
-          <div className="pt-2">
+          <div className="pt-1">
             <button
               onClick={loadLatestBatchSample}
-              className="text-xs text-[#1E293B] dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white bg-[#E2E9F2] hover:bg-[#D2DCE8] dark:bg-[#181820] dark:hover:bg-[#20202a] border border-[#D2DCE8] dark:border-[#24242C] px-3 py-1.5 rounded-md transition"
+              className="text-xs text-slate-700 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white bg-[#E2E9F2] hover:bg-[#D2DCE8] dark:bg-[#18181D] dark:hover:bg-[#202028] border border-[#D2DCE8] dark:border-[#2A2A34] px-3 py-1.5 rounded-md transition font-medium"
             >
-              Or load sample batch from live system
+              Load Live Batch Sample (#1)
             </button>
           </div>
         </div>
@@ -202,99 +209,147 @@ export const AuditorPortal: React.FC = () => {
 
       {/* Verifying Indicator */}
       {verifying && (
-        <div className="p-4 bg-[#F4F7FA] dark:bg-[#121216] border border-[#D2DCE8] dark:border-indigo-500/30 shadow-sm rounded-xl flex items-center justify-center gap-3 text-[#3730A3] dark:text-indigo-300 text-xs">
-          <Cpu className="w-4 h-4 animate-spin text-[#3730A3] dark:text-[#6366F1]" />
-          <span className="font-mono">
-            Recomputing SHA-256 Merkle root in browser and querying smart contract...
+        <div className="p-3 bg-[#F4F7FA] dark:bg-[#111114] border border-indigo-500/30 rounded-lg flex items-center justify-center gap-2.5 text-indigo-600 dark:text-indigo-400 text-xs">
+          <Cpu size={15} strokeWidth={1.75} className="animate-spin" />
+          <span className="font-mono text-[11px]">
+            Recomputing SHA-256 Merkle root in browser via crypto.subtle and querying smart contract...
           </span>
         </div>
       )}
 
-      {/* Clear Verdict Card: Verified Admissible - Soft Mint (#E6F6EE) with #065F46 text and #A7F3D0 border */}
+      {/* Error Banner */}
+      {auditResult.status === 'ERROR' && (
+        <div className="bg-[#F4F7FA] dark:bg-[#111114] border border-rose-500/40 rounded-lg p-4 flex items-center gap-3 text-xs text-rose-700 dark:text-rose-300">
+          <XCircle size={16} strokeWidth={1.75} className="shrink-0 text-rose-600 dark:text-rose-400" />
+          <span>{auditResult.errorMessage || 'Evidence verification failed due to an error.'}</span>
+        </div>
+      )}
+
+      {/* Sharp Verification Banner - Verified Admissible */}
       {auditResult.status === 'VERIFIED' && (
-        <div className="bg-[#E6F6EE] dark:bg-[#121216] border border-[#A7F3D0] dark:border-emerald-500/50 shadow-sm rounded-xl p-6 space-y-4 transition-colors duration-200">
-          <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-lg bg-[#A7F3D0]/60 dark:bg-emerald-500/10 border border-[#A7F3D0] dark:border-emerald-500/20 flex items-center justify-center text-[#065F46] dark:text-emerald-400 shrink-0">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-base font-semibold text-[#065F46] dark:text-white">
-                  Verified Admissible (BSA Sec 63)
-                </h3>
-                <span className="px-2.5 py-0.5 rounded text-[10px] font-semibold bg-[#A7F3D0]/70 text-[#065F46] border border-[#A7F3D0] dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30">
-                  Tamper Proof
-                </span>
+        <div className="bg-[#F4F7FA] dark:bg-[#111114] border border-emerald-500/40 rounded-lg p-4 space-y-3">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-md bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                <ShieldCheck size={16} strokeWidth={1.75} />
               </div>
-              <p className="text-xs text-[#065F46]/90 dark:text-zinc-400 mt-1">
-                Zero-Trust Verification Succeeded. The browser-computed Merkle root matches the on-chain blockchain anchor byte-for-byte ({auditResult.leafCount} log leaves verified).
-              </p>
-            </div>
-          </div>
-
-          {/* Root Comparison: Nested cool slate boxes */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-            <div className="p-3 rounded-lg bg-[#F4F7FA] dark:bg-[#0E0E12] border border-[#A7F3D0] dark:border-[#24242C] space-y-1">
-              <span className="text-[11px] text-[#065F46] dark:text-zinc-400 font-semibold block">
-                Browser Computed Merkle Root (Web Crypto):
-              </span>
-              <span className="text-[#065F46] dark:text-emerald-400 font-mono text-[11px] break-all select-all font-bold">
-                {auditResult.computedRoot}
-              </span>
-            </div>
-
-            <div className="p-3 rounded-lg bg-[#F4F7FA] dark:bg-[#0E0E12] border border-[#A7F3D0] dark:border-[#24242C] space-y-1">
-              <span className="text-[11px] text-[#065F46] dark:text-zinc-400 font-semibold block">
-                On-Chain Smart Contract Root (LogAnchor.sol):
-              </span>
-              <span className="text-[#065F46] dark:text-emerald-400 font-mono text-[11px] break-all select-all font-bold">
-                {auditResult.onChainRoot}
-              </span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
+                    Verified Admissible Under BSA Section 63
+                  </h3>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 dark:text-emerald-400">
+                    <CheckCircle2 size={10} strokeWidth={2} />
+                    TAMPER-PROOF
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-600 dark:text-zinc-400 mt-0.5">
+                  Zero-trust cryptographic verification succeeded. Browser recomputed root matches the on-chain smart contract anchor byte-for-byte ({auditResult.leafCount} log leaves verified).
+                </p>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Clear Verdict Card: Tampered / Invalid - Soft Blush Rose (#FCE8EC) with #9F1239 text and #FECDD3 border */}
+      {/* Sharp Verification Banner - Tampered / Invalid */}
       {auditResult.status === 'TAMPERED' && (
-        <div className="bg-[#FCE8EC] dark:bg-[#121216] border border-[#FECDD3] dark:border-rose-500/60 shadow-sm rounded-xl p-6 space-y-4 transition-colors duration-200">
-          <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-lg bg-[#FECDD3] dark:bg-rose-500/10 border border-[#FECDD3] dark:border-rose-500/20 flex items-center justify-center text-[#9F1239] dark:text-rose-400 shrink-0">
-              <XCircle className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-base font-semibold text-[#9F1239] dark:text-white">
-                  Tampered / Invalid Record
-                </h3>
-                <span className="px-2.5 py-0.5 rounded text-[10px] font-semibold bg-[#FECDD3] text-[#9F1239] border border-[#FECDD3] dark:bg-rose-500/20 dark:text-rose-400 dark:border-rose-500/30">
-                  Inadmissible
-                </span>
+        <div className="bg-[#F4F7FA] dark:bg-[#111114] border border-rose-500/40 rounded-lg p-4 space-y-3">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-md bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0">
+                <ShieldAlert size={16} strokeWidth={1.75} />
               </div>
-              <p className="text-xs text-[#9F1239]/90 dark:text-rose-300 mt-1">
-                Cryptographic mismatch! The browser-computed Merkle root does not match the immutable smart contract anchor. Evidence is tainted or modified.
-              </p>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-rose-800 dark:text-rose-300">
+                    Tamper Detected • Inadmissible in Court
+                  </h3>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-rose-500/10 text-rose-700 border border-rose-500/20 dark:text-rose-300">
+                    <XCircle size={10} strokeWidth={2} />
+                    INTEGRITY VIOLATED
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-600 dark:text-zinc-400 mt-0.5">
+                  Cryptographic mismatch detected! The browser-recomputed Merkle root does not match the immutable on-chain smart contract anchor. Evidence is tainted.
+                </p>
+              </div>
             </div>
           </div>
+        </div>
+      )}
 
-          {/* Root Comparison */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-            <div className="p-3 rounded-lg bg-[#F4F7FA] dark:bg-[#0E0E12] border border-[#FECDD3] dark:border-rose-950/50 space-y-1">
-              <span className="text-[11px] text-[#9F1239] dark:text-rose-400 font-semibold block">
-                Browser Computed Merkle Root:
+      {/* Structured Cryptographic Proof Table */}
+      {(auditResult.status === 'VERIFIED' || auditResult.status === 'TAMPERED') && (
+        <div className="bg-[#F4F7FA] dark:bg-[#111114] border border-[#D2DCE8] dark:border-[#222228] rounded-lg overflow-hidden">
+          <div className="px-4 py-2 border-b border-[#D2DCE8] dark:border-[#222228] bg-[#E2E9F2] dark:bg-[#18181D] flex items-center justify-between">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-800 dark:text-zinc-200">
+              Cryptographic Proof &amp; Integrity Matrix
+            </span>
+            <span className="text-[10px] font-mono text-slate-500 dark:text-zinc-400">
+              RFC 6962 / Web Crypto Subtle API
+            </span>
+          </div>
+
+          <div className="divide-y divide-[#D2DCE8] dark:divide-[#222228] text-xs">
+            {/* Row 1: Browser Recomputed Root */}
+            <div className="px-4 py-2.5 grid grid-cols-1 md:grid-cols-3 gap-2 items-center">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 dark:text-zinc-400">
+                Browser Recomputed Root:
               </span>
-              <span className="text-[#9F1239] dark:text-rose-300 font-mono text-[11px] break-all select-all font-bold">
+              <span className={`md:col-span-2 font-mono text-[11px] break-all select-all font-semibold tabular-nums ${
+                auditResult.status === 'VERIFIED'
+                  ? 'text-emerald-700 dark:text-emerald-400'
+                  : 'text-rose-700 dark:text-rose-400'
+              }`}>
                 {auditResult.computedRoot}
               </span>
             </div>
 
-            <div className="p-3 rounded-lg bg-[#F4F7FA] dark:bg-[#0E0E12] border border-[#D2DCE8] dark:border-[#24242C] space-y-1">
-              <span className="text-[11px] text-slate-700 dark:text-zinc-400 font-semibold block">
-                Expected On-Chain Anchor:
+            {/* Row 2: On-Chain Ledger Root */}
+            <div className="px-4 py-2.5 grid grid-cols-1 md:grid-cols-3 gap-2 items-center">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 dark:text-zinc-400">
+                On-Chain Ledger Root:
               </span>
-              <span className="text-[#1E293B] dark:text-zinc-300 font-mono text-[11px] break-all select-all font-bold">
+              <span className="md:col-span-2 font-mono text-[11px] break-all select-all font-semibold text-slate-800 dark:text-zinc-200 tabular-nums">
                 {auditResult.onChainRoot}
               </span>
+            </div>
+
+            {/* Row 3: Claimed Evidence Package Root */}
+            {auditResult.expectedRoot && (
+              <div className="px-4 py-2.5 grid grid-cols-1 md:grid-cols-3 gap-2 items-center">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 dark:text-zinc-400">
+                  Claimed Evidence Root:
+                </span>
+                <span className="md:col-span-2 font-mono text-[11px] break-all select-all text-slate-700 dark:text-zinc-300 tabular-nums">
+                  {auditResult.expectedRoot}
+                </span>
+              </div>
+            )}
+
+            {/* Row 4: Metadata summary */}
+            <div className="px-4 py-2.5 grid grid-cols-2 md:grid-cols-4 gap-3 bg-[#E2E9F2]/50 dark:bg-[#0E0E12]/50 font-mono text-[11px]">
+              <div>
+                <span className="text-[10px] uppercase tracking-wider text-slate-500 dark:text-zinc-500 block">Leaves Verified</span>
+                <span className="font-semibold text-slate-900 dark:text-zinc-100 tabular-nums">{auditResult.leafCount} lines</span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase tracking-wider text-slate-500 dark:text-zinc-500 block">Batch Identifier</span>
+                <span className="font-semibold text-slate-900 dark:text-zinc-100 tabular-nums">#{evidenceData?.batch_id ?? 1}</span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase tracking-wider text-slate-500 dark:text-zinc-500 block">Hash Primitive</span>
+                <span className="font-semibold text-slate-900 dark:text-zinc-100">SHA-256 (Hex)</span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase tracking-wider text-slate-500 dark:text-zinc-500 block">Admissibility</span>
+                <span className={`font-semibold ${
+                  auditResult.status === 'VERIFIED' ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'
+                }`}>
+                  {auditResult.status === 'VERIFIED' ? 'Section 63 Valid' : 'Inadmissible'}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -302,72 +357,72 @@ export const AuditorPortal: React.FC = () => {
 
       {/* Collapsible Accordion: BSA Section 63 Part A & Part B Certificate */}
       {evidenceData?.bsa_section_63_certificate && (
-        <div className="bg-[#F4F7FA] dark:bg-[#121216] border border-[#D2DCE8] dark:border-[#24242C] shadow-sm rounded-xl overflow-hidden transition-colors duration-200">
+        <div className="bg-[#F4F7FA] dark:bg-[#111114] border border-[#D2DCE8] dark:border-[#222228] rounded-lg overflow-hidden">
           {/* Accordion Trigger Header */}
           <button
             onClick={() => setCertExpanded(!certExpanded)}
-            className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-[#E2E9F2]/70 dark:hover:bg-[#181820] transition"
+            className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-[#E2E9F2]/60 dark:hover:bg-[#181820] transition"
           >
-            <div className="flex items-center gap-3">
-              <FileText className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+            <div className="flex items-center gap-2.5">
+              <FileText size={15} strokeWidth={1.75} className="text-amber-600 dark:text-amber-400" />
               <div>
-                <span className="text-xs font-semibold text-slate-900 dark:text-white tracking-wide block">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-900 dark:text-zinc-100 block">
                   BSA Section 63 Statutory Schedule Certificate
                 </span>
-                <span className="text-[11px] text-slate-600 dark:text-zinc-400">
+                <span className="text-[11px] text-slate-500 dark:text-zinc-500">
                   Section 63(4) Part A (System Custodian) &amp; Part B (Forensic Expert)
                 </span>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono text-[#92400E] bg-[#FEF3C7] border border-[#FDE68A] dark:text-amber-300 dark:bg-amber-500/10 dark:border-amber-500/20 px-2 py-0.5 rounded font-medium">
+              <span className="text-[10px] font-mono text-amber-800 bg-amber-500/10 border border-amber-500/20 dark:text-amber-300 px-2 py-0.5 rounded font-medium">
                 Section 63(4)
               </span>
               {certExpanded ? (
-                <ChevronUp className="w-4 h-4 text-slate-500 dark:text-zinc-400" />
+                <ChevronUp size={15} strokeWidth={1.75} className="text-slate-500 dark:text-zinc-400" />
               ) : (
-                <ChevronDown className="w-4 h-4 text-slate-500 dark:text-zinc-400" />
+                <ChevronDown size={15} strokeWidth={1.75} className="text-slate-500 dark:text-zinc-400" />
               )}
             </div>
           </button>
 
           {/* Accordion Content */}
           {certExpanded && (
-            <div className="px-5 pb-5 pt-2 border-t border-[#D2DCE8] dark:border-[#24242C] space-y-4 text-xs">
-              {/* Part A: System Custodian - Nested box in cool slate (#E2E9F2) */}
-              <div className="p-4 bg-[#E2E9F2] dark:bg-[#0E0E12] border border-[#D2DCE8] dark:border-[#24242C] rounded-lg space-y-2">
-                <div className="flex items-center justify-between font-semibold text-[#3730A3] dark:text-[#6366F1]">
+            <div className="px-4 pb-4 pt-1 border-t border-[#D2DCE8] dark:border-[#222228] space-y-3 text-xs">
+              {/* Part A: System Custodian */}
+              <div className="p-3 bg-[#E2E9F2] dark:bg-[#0E0E12] border border-[#D2DCE8] dark:border-[#222228] rounded-md space-y-1.5">
+                <div className="flex items-center justify-between font-semibold text-indigo-700 dark:text-indigo-400 text-xs">
                   <span>{evidenceData.bsa_section_63_certificate.part_a_system_custodian_declaration.title}</span>
-                  <span className="font-mono text-[10px] text-slate-600 dark:text-zinc-400">
+                  <span className="font-mono text-[10px] text-slate-500 dark:text-zinc-500">
                     {evidenceData.bsa_section_63_certificate.part_a_system_custodian_declaration.statutory_subclause}
                   </span>
                 </div>
-                <p className="text-[#1E293B] dark:text-zinc-300">
+                <p className="text-slate-700 dark:text-zinc-300 text-[11px]">
                   <strong>Custodian:</strong> {evidenceData.bsa_section_63_certificate.part_a_system_custodian_declaration.custodian_name} ({evidenceData.bsa_section_63_certificate.part_a_system_custodian_declaration.organization})
                 </p>
-                <div className="space-y-1 text-[#1E293B] dark:text-zinc-300 pl-2.5 border-l border-[#CBD5E1] dark:border-zinc-700 text-[11.5px]">
+                <div className="space-y-1 text-slate-700 dark:text-zinc-300 pl-2.5 border-l border-slate-300 dark:border-zinc-700 text-[11px]">
                   {evidenceData.bsa_section_63_certificate.part_a_system_custodian_declaration.declaration_statements.map((stmt: string, i: number) => (
                     <div key={i}>{stmt}</div>
                   ))}
                 </div>
               </div>
 
-              {/* Part B: Forensic Expert - Nested box in cool slate (#E2E9F2) */}
-              <div className="p-4 bg-[#E2E9F2] dark:bg-[#0E0E12] border border-[#D2DCE8] dark:border-[#24242C] rounded-lg space-y-2">
-                <div className="flex items-center justify-between font-semibold text-[#065F46] dark:text-emerald-400">
+              {/* Part B: Forensic Expert */}
+              <div className="p-3 bg-[#E2E9F2] dark:bg-[#0E0E12] border border-[#D2DCE8] dark:border-[#222228] rounded-md space-y-1.5">
+                <div className="flex items-center justify-between font-semibold text-emerald-700 dark:text-emerald-400 text-xs">
                   <span>{evidenceData.bsa_section_63_certificate.part_b_forensic_expert_declaration.title}</span>
-                  <span className="font-mono text-[10px] text-slate-600 dark:text-zinc-400">
+                  <span className="font-mono text-[10px] text-slate-500 dark:text-zinc-500">
                     {evidenceData.bsa_section_63_certificate.part_b_forensic_expert_declaration.statutory_subclause}
                   </span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-[11px] text-[#1E293B] dark:text-zinc-300 bg-[#F4F7FA] dark:bg-[#121216] p-3 rounded border border-[#D2DCE8] dark:border-[#24242C]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-[10.5px] text-slate-800 dark:text-zinc-200 bg-[#F4F7FA] dark:bg-[#111114] p-2.5 rounded border border-[#D2DCE8] dark:border-[#222228]">
                   <div><strong>Cipher:</strong> {evidenceData.bsa_section_63_certificate.part_b_forensic_expert_declaration.cryptographic_verification.vault_cipher}</div>
                   <div><strong>Merkle Tree:</strong> {evidenceData.bsa_section_63_certificate.part_b_forensic_expert_declaration.cryptographic_verification.merkle_tree_algorithm}</div>
                   <div className="sm:col-span-2 break-all"><strong>Smart Contract:</strong> {evidenceData.bsa_section_63_certificate.part_b_forensic_expert_declaration.cryptographic_verification.on_chain_smart_contract}</div>
                   <div className="sm:col-span-2 break-all"><strong>On-Chain Tx:</strong> {evidenceData.bsa_section_63_certificate.part_b_forensic_expert_declaration.cryptographic_verification.transaction_hash}</div>
                 </div>
-                <div className="space-y-1 text-[#1E293B] dark:text-zinc-300 pl-2.5 border-l border-[#CBD5E1] dark:border-zinc-700 text-[11.5px]">
+                <div className="space-y-1 text-slate-700 dark:text-zinc-300 pl-2.5 border-l border-slate-300 dark:border-zinc-700 text-[11px]">
                   {evidenceData.bsa_section_63_certificate.part_b_forensic_expert_declaration.expert_findings.map((f: string, i: number) => (
                     <div key={i}>{f}</div>
                   ))}
